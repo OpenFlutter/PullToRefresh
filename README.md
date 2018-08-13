@@ -2,5 +2,5 @@
 
 PullToRefresh Path: lib/pullandpush.dart
 
-![image](http://github.com/baoolong/PullToRefresh/raw/master/images/20180813170926.gif)
+![image](https://raw.githubusercontent.com/baoolong/PullToRefresh/master/images/20180813170926.gif)
 
