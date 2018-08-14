@@ -15,7 +15,7 @@ PullToRefresh Path: lib/pullandpush.dart
 <img width="45%" height="45%" src="https://raw.githubusercontent.com/baoolong/PullToRefresh/master/demonstrationgif/20180813170926.gif"/>
 
 ## 仿京东广告滑动切换 ##
-模仿的京东潮男模块的广告滑动切换，本人做的比较粗糙，大家可以在此基础上改进，比如滞后滑动，底层图片缩小等
+模仿的京东潮男模块的广告滑动切换，本人做的比较粗糙，大家可以在此基础上改进，比如滞后滑动，底层图片缩小等，由于没有进行屏幕适配，所以可能不同的手机会显示很丑，这是由于我在设计图片之间的Magin是用屏幕宽度减去两边距屏幕的宽度，再除以3计算的，大家可以根据需要去设定图片之间的Magin，最好固定值
 <img width="45%" height="45%" src="https://raw.githubusercontent.com/baoolong/PullToRefresh/master/demonstrationgif/20180814_142133.gif"/>
 
 ## WheelView ##
