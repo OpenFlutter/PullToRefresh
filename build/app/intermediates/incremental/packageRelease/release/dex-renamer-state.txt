@@ -1,4 +1,0 @@
-#Wed Aug 22 09:29:34 CST 2018
-base.0=D\:\\ProjectCode\\flutterapp\\build\\app\\intermediates\\transforms\\dex\\release\\0
-path.0=classes.dex
-renamed.0=classes.dex
