@@ -55,12 +55,6 @@ class _MyHomePageState extends State<MyHomePage> with SingleTickerProviderStateM
           });
         },
       ),
-//      body: new TabBarView(
-//        controller: controller,
-//        children: <Widget>[
-//          new FirstPage(),
-//          new SecondPage(),
-//          new ThirdPage()]),
       bottomNavigationBar:
           new BottomNavigationBar(items: [
             new BottomNavigationBarItem(
@@ -96,21 +90,6 @@ class _MyHomePageState extends State<MyHomePage> with SingleTickerProviderStateM
             currentIndex: currentPage,
             fixedColor: Colors.blue,
         )
-
-//      new Material(
-//        color: Colors.orangeAccent,
-//        child: new TabBar(
-//          indicator: null,
-//          indicatorWeight: 0.1,
-//          labelStyle: new TextStyle(fontSize: 11.0),
-//          unselectedLabelColor: Colors.white,
-//          labelColor: Colors.blue,
-//          controller: controller,
-//          tabs: <Tab>[
-//            new Tab(text: "列表",icon: new Icon(Icons.home)),
-//            new Tab(text: "通知",icon: new Icon(Icons.message)),
-//            new Tab(text: "我的",icon: new Icon(Icons.cloud))]),
-//      ),
     );
   }
 

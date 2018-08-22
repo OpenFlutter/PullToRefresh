@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutterapp/dragablegridview.dart';
 import 'package:flutterapp/pullandpush.dart';
 import '../randomwords.dart';
 import '../shoppinglist.dart';
@@ -34,6 +35,7 @@ class List extends StatefulWidget{
     new AppInfoBin("CupertinoPicker", "2018-07-16 09:09", "仿IOS时间选择器",false),
     new AppInfoBin("IOSPicker", "2018-07-16 16:16", "自定义仿IOS时间选择器",false),
     new AppInfoBin("PullAndPush", "2018-07-27 09:45", "上下拉刷新",false),
+    new AppInfoBin("DragAbleGridView", "2018-08-15 15:30", "可拖拽的GridView",false),
   ];
 
   @override
@@ -124,6 +126,10 @@ class ListState extends State<List>{
               }else if(index==14){
                 Navigator.of(context).push(new MaterialPageRoute(builder: (_) {
                   return new PullAndPush();
+                }));
+              }else if(index==15){
+                Navigator.of(context).push(new MaterialPageRoute(builder: (_) {
+                  return new DragAbleGridView();
                 }));
               }
 
