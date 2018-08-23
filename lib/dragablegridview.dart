@@ -32,7 +32,7 @@ class DragAbleGridViewState extends State<DragAbleGridView> with SingleTickerPro
   int endPosition;
   bool isRest=false;
   int crossAxisCount=4;
-  double areaCoverageRatio=2/3;
+  double areaCoverageRatio=1/3;
 
 
   @override
@@ -98,12 +98,13 @@ class DragAbleGridViewState extends State<DragAbleGridView> with SingleTickerPro
           controller.reset();
           isRest=false;
 
-          print("startposition $startPosition**********endPosition $endPosition");
           int dragPosition=itemPositions[startPosition];
           itemPositions.removeAt(startPosition);
           itemPositions.insert(endPosition, dragPosition);
-          print(itemBins[itemPositions[4]].data);
           startPosition=endPosition;
+          for(int i=0;i<itemPositions.length;i++){
+            print("~~~~~~~~~~~itemPositions ${itemPositions[i]}~~~~~~~~~~~~~~~");
+          }
 
       }else if(animationStatus==AnimationStatus.forward){
 
@@ -250,9 +251,10 @@ class DragAbleGridViewState extends State<DragAbleGridView> with SingleTickerPro
                       }
                     }
 
-                    if(endPosition!=x+y&&!controller.isAnimating){
+                    if(endPosition!=x+y&&!controller.isAnimating&&x+y<itemBins.length&&x+y>=0){
                       endPosition=x+y;
                       controller.forward();
+                      print("******endPosition $endPosition******");
                     }
                   }
                   setState(() {});
@@ -265,6 +267,7 @@ class DragAbleGridViewState extends State<DragAbleGridView> with SingleTickerPro
                   itemBins[index].dragPointX = 0.0;
                 }else {
                   setState(() {
+                    itemBins[index].dragAble=false;
                     List<ItemBin> itemBi = new List();
                     ItemBin bin;
                     for (int i = 0; i < itemPositions.length; i++) {
@@ -279,6 +282,9 @@ class DragAbleGridViewState extends State<DragAbleGridView> with SingleTickerPro
                     itemBins.addAll(itemBi);
                     _initItemPositions();
                   });
+                }
+                for(int i=0;i<itemBins.length;i++){
+                  print("${itemBins[i].toString()}********${itemPositions[i]}");
                 }
               },
               child:new Container(
@@ -325,4 +331,10 @@ class ItemBin{
   GlobalKey containerKeyChild=new GlobalKey();
   bool isLongPress=false;
   bool dragAble=false;
+
+  @override
+  String toString() {
+    return 'ItemBin{data: $data, dragPointX: $dragPointX, dragPointY: $dragPointY, lastTimePositionX: $lastTimePositionX, lastTimePositionY: $lastTimePositionY, containerKey: $containerKey, containerKeyChild: $containerKeyChild, isLongPress: $isLongPress, dragAble: $dragAble}';
+  }
+
 }
