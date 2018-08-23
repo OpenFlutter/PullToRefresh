@@ -363,7 +363,7 @@ packages:
       name: synchronized
       url: "https://pub.flutter-io.cn"
     source: hosted
-    version: "1.5.1"
+    version: "1.5.1+1"
   term_glyph:
     dependency: transitive
     description:

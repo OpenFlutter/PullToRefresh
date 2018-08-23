@@ -266,22 +266,7 @@ class DragAbleGridViewState extends State<DragAbleGridView> with SingleTickerPro
                   itemBins[index].dragPointY = 0.0;
                   itemBins[index].dragPointX = 0.0;
                 }else {
-                  setState(() {
-                    itemBins[index].dragAble=false;
-                    List<ItemBin> itemBi = new List();
-                    ItemBin bin;
-                    for (int i = 0; i < itemPositions.length; i++) {
-                      bin=itemBins[itemPositions[i]];
-                      bin.dragPointX = 0.0;
-                      bin.dragPointY = 0.0;
-                      bin.lastTimePositionX = 0.0;
-                      bin.lastTimePositionY = 0.0;
-                      itemBi.add(bin);
-                    }
-                    itemBins.clear();
-                    itemBins.addAll(itemBi);
-                    _initItemPositions();
-                  });
+                  onPanEndEvent(index);
                 }
                 for(int i=0;i<itemBins.length;i++){
                   print("${itemBins[i].toString()}********${itemPositions[i]}");
@@ -316,7 +301,32 @@ class DragAbleGridViewState extends State<DragAbleGridView> with SingleTickerPro
       )
     );
   }
+
+
+  void onPanEndEvent(index)async {
+    if(controller.isAnimating){
+      Future a=await Future.delayed(new Duration(milliseconds: 300));
+    }
+    setState(() {
+      itemBins[index].dragAble=false;
+      List<ItemBin> itemBi = new List();
+      ItemBin bin;
+      for (int i = 0; i < itemPositions.length; i++) {
+        bin=itemBins[itemPositions[i]];
+        bin.dragPointX = 0.0;
+        bin.dragPointY = 0.0;
+        bin.lastTimePositionX = 0.0;
+        bin.lastTimePositionY = 0.0;
+        itemBi.add(bin);
+      }
+      itemBins.clear();
+      itemBins.addAll(itemBi);
+      _initItemPositions();
+    });
+  }
 }
+
+
 
 class ItemBin{
 
