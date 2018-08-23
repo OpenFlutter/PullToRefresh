@@ -28,7 +28,7 @@ PullToRefresh Path: lib/pullandpush.dart
 
 ## DragableGridView 可拖动GridView ##
 采用GridView +GridView +Container的transform属性来完成，由于计算不精确，考虑不周全，现在还有很多问题，后续改进，学习的朋友可以拿去自己研究改进，添加新功能，下面是示例图
-<img width="45%" height="45%" src="https://raw.githubusercontent.com/baoolong/PullToRefresh/master/demonstrationgif/20180821_094948.gif"/>
-<img width="45%" height="45%" src="https://raw.githubusercontent.com/baoolong/PullToRefresh/master/demonstrationgif/20180822_115107.gif"/>
 
+----------
 
+<img width="45%" height="45%" src="https://raw.githubusercontent.com/baoolong/PullToRefresh/master/demonstrationgif/20180821_094948.gif"/>        <img width="45%" height="45%" src="https://raw.githubusercontent.com/baoolong/PullToRefresh/master/demonstrationgif/20180822_115107.gif"/>
