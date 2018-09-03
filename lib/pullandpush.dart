@@ -129,7 +129,7 @@ class PullAndPushState extends State<PullAndPush> with TickerProviderStateMixin{
       var request = await httpClient.getUrl(Uri.parse(url));
       var response = await request.close();
       if (response.statusCode == HttpStatus.OK) {
-        _result = await response.transform(UTF8.decoder).join();
+        _result = await response.transform(utf8.decoder).join();
       } else {
         _result = 'error code : ${response.statusCode}';
       }

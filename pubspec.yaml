@@ -12,7 +12,7 @@ dependencies:
   cupertino_icons: ^0.1.2
   english_words: ^3.1.0
   transparent_image: ^0.1.0
-  cached_network_image: ^0.4.1
+  #cached_network_image: ^0.4.1
 
 dev_dependencies:
   flutter_test:

@@ -3,7 +3,7 @@ import 'package:flutter_localizations/flutter_localizations.dart';
 import 'dart:io';
 import 'dart:convert';
 import 'package:transparent_image/transparent_image.dart';
-import 'package:cached_network_image/cached_network_image.dart';
+//import 'package:cached_network_image/cached_network_image.dart';
 
 
 class NetWorkCls extends StatefulWidget{
@@ -63,7 +63,7 @@ class ImageWeightState extends State<ImageWeight>{
       var request = await httpClient.getUrl(Uri.parse(url));
       var response = await request.close();
       if (response.statusCode == HttpStatus.OK) {
-        _result = await response.transform(UTF8.decoder).join();
+        _result = await response.transform(utf8.decoder).join();
         //_decodeJson(_result, false);
       } else {
         _result = 'error code : ${response.statusCode}';
@@ -94,10 +94,10 @@ class ImageWeightState extends State<ImageWeight>{
             placeholder: kTransparentImage,  //占位符
             image: 'https://github.com/flutter/website/blob/master/_includes/code/layout/lakes/images/lake.jpg?raw=true',
           ),
-          new CachedNetworkImage( //缓存图片
-            placeholder: new CircularProgressIndicator(),//占位符
-            imageUrl: "https://github.com/flutter/website/blob/master/_includes/code/layout/lakes/images/lake.jpg?raw=true",
-          ),
+//          new CachedNetworkImage( //缓存图片
+//            placeholder: new CircularProgressIndicator(),//占位符
+//            imageUrl: "https://github.com/flutter/website/blob/master/_includes/code/layout/lakes/images/lake.jpg?raw=true",
+//          ),
           new Image.network(picUrl),
           new Text(_result)
         ],

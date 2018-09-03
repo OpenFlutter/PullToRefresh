@@ -74,6 +74,7 @@ class _CupertinoPickerDemoState extends State<CupertinoPickerDemo> {
           child: new SafeArea(
             child: new CupertinoPicker(
               scrollController: scrollController,
+              looping: true,
               itemExtent: _kPickerItemHeight,
               backgroundColor: CupertinoColors.white,
               onSelectedItemChanged: (int index) {
