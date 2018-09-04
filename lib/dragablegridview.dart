@@ -32,7 +32,7 @@ class DragAbleGridViewState extends State<DragAbleGridView> with SingleTickerPro
   int endPosition;
   bool isRest=false;
   int crossAxisCount=4;
-  double areaCoverageRatio=1/5;
+  double areaCoverageRatio=2/5;
 
   Timer timer;
 
@@ -104,9 +104,6 @@ class DragAbleGridViewState extends State<DragAbleGridView> with SingleTickerPro
           itemPositions.removeAt(startPosition);
           itemPositions.insert(endPosition, dragPosition);
           startPosition=endPosition;
-//          for(int i=0;i<itemPositions.length;i++){
-//            print("~~~~~~~~~~~itemPositions ${itemPositions[i]}~~~~~~~~~~~~~~~");
-//          }
 
       }else if(animationStatus==AnimationStatus.forward){
 
@@ -198,9 +195,11 @@ class DragAbleGridViewState extends State<DragAbleGridView> with SingleTickerPro
                 if(itemBins[index].dragAble) {
                   double dragPointY=itemBins[index].dragPointY += updateDetail.delta.dy;
                   double dragPointX=itemBins[index].dragPointX += updateDetail.delta.dx;
-                  //print("dragPointX $dragPointX");
                   if(timer!=null&&timer.isActive){
                     timer.cancel();
+                  }
+                  if(controller.isAnimating){
+                    return;
                   }
                   timer=new Timer(new Duration(milliseconds: 100), (){
                     onFingerPause(index,dragPointX,dragPointY,updateDetail);
@@ -217,9 +216,6 @@ class DragAbleGridViewState extends State<DragAbleGridView> with SingleTickerPro
                 }else {
                   onPanEndEvent(index);
                 }
-//                for(int i=0;i<itemBins.length;i++){
-//                  print("${itemBins[i].toString()}********${itemPositions[i]}");
-//                }
               },
               child:new Container(
                 alignment: Alignment.center,
@@ -251,16 +247,16 @@ class DragAbleGridViewState extends State<DragAbleGridView> with SingleTickerPro
     );
   }
 
-  int onDragLessThanWidthX(int index,double dragPointX,bool isYDragable){
-    int x;
+  int onDragLessThanWidthX(int index,double dragPointX,bool isYDragable,DragUpdateDetails updateDetail){
+    int x=0;
 
     int a=itemPositions.indexOf(index);
     if((index==a||isYDragable)||(index!=a||!isYDragable)){
       return 0;
     }
-    if (dragPointX < 0.0) {
+    if (dragPointX < 0.0&&updateDetail.delta.dx>0.0) {
       x=-1;
-    } else {
+    } else if(dragPointX > 0.0&&updateDetail.delta.dx<0.0){
       x=1;
     }
     return x;
@@ -278,15 +274,15 @@ class DragAbleGridViewState extends State<DragAbleGridView> with SingleTickerPro
     return x;
   }
 
-  int onDragLessThanWidthY(int index,double dragPointY){
-    int y;
+  int onDragLessThanWidthY(int index,double dragPointY,DragUpdateDetails updateDetail){
+    int y=index;
     int a=itemPositions.indexOf(index);
     if(index~/4==a~/4){
       return index;
     }
-    if(dragPointY<0.0){
+    if(dragPointY<0.0&&updateDetail.delta.dy>0.0){
       y=index-crossAxisCount;
-    }else{
+    }else if(dragPointY>0.0&&updateDetail.delta.dy<0.0){
       y=index+crossAxisCount;
     }
     return y;
@@ -333,6 +329,10 @@ class DragAbleGridViewState extends State<DragAbleGridView> with SingleTickerPro
         &&(dragPointY.abs()-yBlankPlace)%(itemHeightChild+yBlankPlace)<yMaxCoverageArea;
 
     if(xTransferAbleIfLessThanW||yTransferAbleIfLessThanH||xTransferAbleIfMoreThanW||yTransferAbleIfMoreThanH){
+    //if((xTransferAbleIfLessThanW&&yTransferAbleIfLessThanH)
+     //   ||(xTransferAbleIfLessThanW&&yTransferAbleIfMoreThanH)
+     //   ||(yTransferAbleIfLessThanH&&xTransferAbleIfMoreThanW)
+     //   ||(xTransferAbleIfMoreThanW&&yTransferAbleIfMoreThanH)){
       int y=0;
       int x=0;
 
@@ -344,22 +344,30 @@ class DragAbleGridViewState extends State<DragAbleGridView> with SingleTickerPro
             y=onDragMoreThanWidthY(index,yBlankPlace,dragPointY);
           }else{
             //向上滑
-            y=onDragLessThanWidthY(index,dragPointY);
+            y=onDragLessThanWidthY(index,dragPointY,updateDetail);
           }
         }else{
           //item在上侧
           if(updateDetail.delta.dy>0){
             //向下滑
-            y=onDragLessThanWidthY(index,dragPointY);
+            y=onDragLessThanWidthY(index,dragPointY,updateDetail);
           }else{
             //向上滑
             y=onDragMoreThanWidthY(index,yBlankPlace,dragPointY);
           }
         }
       }else if(yTransferAbleIfLessThanH){
-        y=onDragLessThanWidthY(index,dragPointY);
+        y=onDragLessThanWidthY(index,dragPointY,updateDetail);
       }else if(yTransferAbleIfMoreThanH){
         y=onDragMoreThanWidthY(index,yBlankPlace,dragPointY);
+      }else if(yAtLeastToAdjacentItem
+          &&((dragPointY.abs()-yBlankPlace)%(itemHeightChild+yBlankPlace)<yMinCoverageArea
+              ||(dragPointY.abs()-yBlankPlace)%(itemHeightChild+yBlankPlace)>yMaxCoverageArea)){
+        //TODO 还有一种情况就是 ，X轴可移动，Y轴不可移动(Y轴小于1/5的高度，或大于4/5的高度)，但是Y轴有高度，这时要将Y轴的高度算上
+        y=onDragMoreThanWidthY(index,yBlankPlace,dragPointY);
+      }else{
+        //要考虑到一种情况，就是只有X轴可移动，Y轴不可移动，这时
+        y=index;
       }
 
 
@@ -372,28 +380,32 @@ class DragAbleGridViewState extends State<DragAbleGridView> with SingleTickerPro
             x=onDragMoreThanWidthX(index,xBlankPlace,dragPointX);
           }else{
             //向左滑
-            x=onDragLessThanWidthX(index,dragPointX,yTransferAbleIfLessThanH||yTransferAbleIfMoreThanH);
+            x=onDragLessThanWidthX(index,dragPointX,yTransferAbleIfLessThanH||yTransferAbleIfMoreThanH,updateDetail);
           }
         }else{
           //item在左侧
           if(updateDetail.delta.dx>0){
             //向右滑
-            x=onDragLessThanWidthX(index,dragPointX,yTransferAbleIfLessThanH||yTransferAbleIfMoreThanH);
+            x=onDragLessThanWidthX(index,dragPointX,yTransferAbleIfLessThanH||yTransferAbleIfMoreThanH,updateDetail);
           }else{
             //向左滑
             x=onDragMoreThanWidthX(index,xBlankPlace,dragPointX);
           }
         }
       }else if(xTransferAbleIfLessThanW){
-        x=onDragLessThanWidthX(index,dragPointX,yTransferAbleIfLessThanH||yTransferAbleIfMoreThanH);
+        x=onDragLessThanWidthX(index,dragPointX,yTransferAbleIfLessThanH||yTransferAbleIfMoreThanH,updateDetail);
       }else if(xTransferAbleIfMoreThanW){
+        x=onDragMoreThanWidthX(index,xBlankPlace,dragPointX);
+      }else if(xAtLeastToAdjacentItem&&
+          ((dragPointX.abs()-xBlankPlace)%(itemWidthChild+xBlankPlace)>xMinCoverageArea
+          ||(dragPointX.abs()-xBlankPlace)%(itemWidthChild+xBlankPlace)<xMaxCoverageArea)){
+        //TODO 还有一种情况就是 ，X轴不可移动(X轴小于1/5的宽度，或大于4/5的宽度)，Y轴可移动，但是X轴有宽度，这时要将X轴的宽度算上
         x=onDragMoreThanWidthX(index,xBlankPlace,dragPointX);
       }
 
       if(endPosition!=x+y&&!controller.isAnimating&&x+y<itemBins.length&&x+y>=0){
         endPosition=x+y;
         controller.forward();
-        print("******endPosition $endPosition******x$x********y$y");
       }
     }
   }
