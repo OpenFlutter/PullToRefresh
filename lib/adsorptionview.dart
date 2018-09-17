@@ -143,7 +143,7 @@ class AdsorptionView extends StatefulWidget{
     adsorptionData.headerName="陈琳";
     adsorptionData.isHeader=false;
     adsorptionDatas.add(adsorptionData);
-    return new AdsorptionViewNotEqualHeightState(adsorptionDatas);
+    return new AdsorptionViewState(adsorptionDatas);
   }
 }
 
@@ -390,6 +390,7 @@ class AdsorptionViewNotEqualHeightState extends State<AdsorptionView>{
 
   int memoryPosition;
 
+
   @override
   Widget build(BuildContext context) {
     return new Scaffold(
@@ -415,6 +416,7 @@ class AdsorptionViewNotEqualHeightState extends State<AdsorptionView>{
                 cacheExtent: 30.0,
                 itemCount: adsorptionDatas.length,
                 itemBuilder: (context, index) {
+                  print("*********************************************");
                   if(positions!=null) {
                     if (index > positions.last) {
                       positions.removeAt(0);
