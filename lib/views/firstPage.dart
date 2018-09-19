@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../components/list.dart';
+import 'package:flutterapp/list.dart';
 
 class FirstPage extends StatefulWidget{
 
