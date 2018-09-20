@@ -19,6 +19,7 @@ class PullAndPush extends StatefulWidget{
   final Color backgroundColor;
   final String refreshIconPath;
   final String tipText;
+  final Color textColor;
 
   PullAndPush({
     @required this.loadData,
@@ -29,11 +30,11 @@ class PullAndPush extends StatefulWidget{
     this.tipText:"松手即可刷新",
     this.refreshIconPath:"images/refresh.png",
     this.isRemoveGlow:true,
+    this.textColor:Colors.white,
     @required this.listView})
       :assert(
         listView!=null,
         loadData!=null,
-        //scrollPhysicsChanged!=null,
       );
 
   @override
@@ -164,7 +165,7 @@ class PullAndPushState extends State<PullAndPush> with TickerProviderStateMixin{
 
                   new Align(
                     alignment: Alignment.centerRight,
-                    child:new Text(widget.tipText,style: new TextStyle(color: Colors.white),),
+                    child:new Text(widget.tipText,style: new TextStyle(color: widget.textColor),),
                   ),
                 ],
               ),
@@ -183,7 +184,7 @@ class PullAndPushState extends State<PullAndPush> with TickerProviderStateMixin{
           height: topItemHeight,
           child: new Center(
             child: new Container(
-              height: 50.0,  //在这里设置布局的宽高
+              height: topItemHeight>50.0?50.0:topItemHeight,  //在这里设置布局的宽高
               width: 150.0,
               child: new Row(
                 children: <Widget>[
@@ -201,8 +202,10 @@ class PullAndPushState extends State<PullAndPush> with TickerProviderStateMixin{
                   ),
 
                   new Align(   //这里是布局中的文字
+                    child:new ClipRect(
+                      child:new Text(widget.tipText,style: new TextStyle(color: widget.textColor),),
+                    ),
                     alignment: Alignment.centerRight,
-                    child:new Text(widget.tipText,style: new TextStyle(color: Colors.white),),
                   ),
                 ],
               ),

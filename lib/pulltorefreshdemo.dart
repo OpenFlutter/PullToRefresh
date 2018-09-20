@@ -32,25 +32,19 @@ class PullAndPushTestState extends State<PullAndPushTest>{
         title: new Text("上下拉刷新"),
       ),
       body: new PullAndPush(
+//        backgroundColor: Colors.lightGreen,
+        tipText: "快给我松手！",
+//        textColor: Colors.grey,
         listView: new ListView.builder(
-        //ListView的Item
-          itemCount: strs.length+2,
+          //ListView的Item
+          itemCount: strs.length,//+2,
           controller: controller,
           physics: scrollPhysics,
           itemBuilder: (BuildContext context,int index){
-            if(index==0){
-              return new Container(
-                alignment: Alignment.bottomCenter,
-              );
-            }else if(index==strs.length+1){
-              return new Container(
-                alignment: Alignment.topCenter,
-              );
-            }
             return new Container(
               height: 35.0,
               child: new Center(
-                child: new Text(strs[index-1],style: new TextStyle(fontSize: 18.0),),
+                child: new Text(strs[index],style: new TextStyle(fontSize: 18.0),),
               ),
             );
           }
