@@ -10,9 +10,9 @@ class PullAndPush extends StatefulWidget{
 
   final LoadData loadData;
   final ScrollPhysicsChanged scrollPhysicsChanged;
-  final Widget pullToRefreshTopHeader;
+  final Widget pullToRefreshTopHeader=null;
   final ScrollView listView;
-  final Widget pullToRefreshBottomHeader;
+  final Widget pullToRefreshBottomHeader=null;
   //去掉过度滑动时ListView顶部的蓝色光晕效果
   final bool isRemoveGlow;
 
@@ -23,8 +23,8 @@ class PullAndPush extends StatefulWidget{
   PullAndPush({
     @required this.loadData,
     @required this.scrollPhysicsChanged,
-    this.pullToRefreshTopHeader,
-    this.pullToRefreshBottomHeader,
+    //this.pullToRefreshTopHeader,
+    //this.pullToRefreshBottomHeader,
     this.backgroundColor:Colors.grey,
     this.tipText:"松手即可刷新",
     this.refreshIconPath:"images/refresh.png",
