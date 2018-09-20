@@ -55,7 +55,7 @@ class PullAndPushTestState extends State<PullAndPushTest>{
             );
           }
         ),
-        loadData: (topItemHeight,bottomItemHeight) async{
+        loadData: (isPullDown) async{
           try {
             var request = await httpClient.getUrl(Uri.parse(url));
             var response = await request.close();
@@ -63,10 +63,10 @@ class PullAndPushTestState extends State<PullAndPushTest>{
               _result = await response.transform(utf8.decoder).join();
               setState(() {
                 //拿到数据后，对数据进行梳理
-                if(topItemHeight>0.0){
+                if(isPullDown){
                   strs.clear();
                   strs.addAll(addStrs);
-                }else if(bottomItemHeight>0.0){
+                }else{
                   strs.addAll(addStrs);
                 }
               });

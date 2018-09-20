@@ -3,7 +3,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 
-typedef Future LoadData(double topItemHeight,double bottomItemHeight);
+typedef Future LoadData(bool isPullDown);
 typedef ScrollPhysicsChanged(ScrollPhysics physics);
 
 class PullAndPush extends StatefulWidget{
@@ -223,7 +223,7 @@ class PullAndPushState extends State<PullAndPush> with TickerProviderStateMixin{
 
   _loadData() async {
     //这里我们开始加载数据 数据加载完成后，将新数据处理并开始加载完成后的处理
-    await widget.loadData(topItemHeight, bottomItemHeight);
+    await widget.loadData(topItemHeight>bottomItemHeight);
     if (!mounted) return;
     //加载数据完成后的处理
     endWaitAnimation();
