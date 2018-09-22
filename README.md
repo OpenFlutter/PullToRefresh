@@ -1,8 +1,3 @@
-**FlutterApp包含以下几个demo**
-- PullToRefresh
-- 仿京东广告滑动切换
-- WheelView
-- 跑马灯
 
 `由于GIF太多（大），演示的图片可能会卡，请移步至demonstrationgif文件夹下可查看单个GIF图片`
 
