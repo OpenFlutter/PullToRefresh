@@ -21,6 +21,8 @@ Add this to your package's pubspec.yaml file:
 Add it to your dart file:
 
 	import 'package:pulltorefresh_flutter/pulltorefresh_flutter.dart';
+#### Example
+   https://github.com/baoolong/PullToRefresh_Flutter
 
 本功能只实现基本的上下拉刷新，可在这个基础上进行改进、优化、封装，如果只是使用，可在build方法中修改ListView控件和List数组的泛型
 
