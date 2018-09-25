@@ -3,7 +3,9 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
-import 'package:flutterapp/components/pulltorefresh.dart';
+//import 'package:flutterapp/components/pulltorefresh.dart';
+import 'package:pulltorefresh_flutter/pulltorefresh_flutter.dart';
+
 
 class PullAndPushTest extends StatefulWidget{
 
@@ -33,7 +35,7 @@ class PullAndPushTestState extends State<PullAndPushTest>{
       ),
       body: new PullAndPush(
 //        backgroundColor: Colors.lightGreen,
-        tipText: "快给我松手！",
+//        tipText: "快给我松手！",
 //        textColor: Colors.grey,
         listView: new ListView.builder(
           //ListView的Item
@@ -53,7 +55,7 @@ class PullAndPushTestState extends State<PullAndPushTest>{
           try {
             var request = await httpClient.getUrl(Uri.parse(url));
             var response = await request.close();
-            if (response.statusCode == HttpStatus.OK) {
+            if (response.statusCode == HttpStatus.ok) {
               _result = await response.transform(utf8.decoder).join();
               setState(() {
                 //拿到数据后，对数据进行梳理
