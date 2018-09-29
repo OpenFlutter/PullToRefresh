@@ -393,7 +393,7 @@ class PullAndPushState extends State<PullAndPush> with TickerProviderStateMixin{
   //ListView get getListView => this.listView;
 }
 
-//切记 继承ScrollPhysics  必须重写applyTo，，在NeverScrollableScrollPhysics类里面复制就可以
+///切记 继承ScrollPhysics  必须重写applyTo，，在NeverScrollableScrollPhysics类里面复制就可以
 class RefreshScrollPhysics extends ScrollPhysics {
   const RefreshScrollPhysics({ ScrollPhysics parent }) : super(parent: parent);
 

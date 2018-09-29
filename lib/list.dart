@@ -14,7 +14,7 @@ import './gridlist.dart';
 import './inkwell.dart';
 import './dismissibleitem.dart';
 import './animations.dart';
-import './marquee.dart';
+import './marqueedemo.dart';
 import './cupertinopicker.dart';
 import './timepicker.dart';
 
@@ -115,7 +115,7 @@ class ListState extends State<ListViewWidgets>{
                 }));
               }else if(index==11){
                 Navigator.of(context).push(new MaterialPageRoute(builder: (_) {
-                  return new MarqueeWidget();
+                  return new MarqueeWidgetDemo();
                 }));
               }else if(index==12){
                 Navigator.of(context).push(new MaterialPageRoute(builder: (_) {
