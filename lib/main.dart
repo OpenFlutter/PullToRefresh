@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import './views/firstPage.dart';
-import './views/secondPage.dart';
-import './views/thirdPage.dart';
+import './pageviews/firstPage.dart';
+import './pageviews/secondPage.dart';
+import './pageviews/thirdPage.dart';
 
 void main() => runApp(
   new MaterialApp(

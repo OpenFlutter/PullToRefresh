@@ -16,7 +16,7 @@ class FirdtPageState extends State<FirstPage>{
   Widget build(BuildContext context) {
     return new Scaffold(
       appBar: new AppBar(
-        title: new Text("界面1",style: new TextStyle(fontSize: 18.0),),
+        title: new Text("CustomWidght",style: new TextStyle(fontSize: 18.0),),
         actions: <Widget>[
           new IconButton(
             icon: new Icon(Icons.search),

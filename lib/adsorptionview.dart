@@ -143,7 +143,7 @@ class AdsorptionView extends StatefulWidget{
     adsorptionData.headerName="陈琳";
     adsorptionData.isHeader=false;
     adsorptionDatas.add(adsorptionData);
-    return new AdsorptionViewState(adsorptionDatas);
+    return new AdsorptionViewNotEqualHeightState(adsorptionDatas);
   }
 }
 

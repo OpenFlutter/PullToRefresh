@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:flutterapp/components/marquee.dart';
+//import 'package:flutterapp/components/marquee.dart';
+import 'package:marquee_flutter/marquee_flutter.dart';
 
 
 class MarqueeWidgetDemo extends StatelessWidget{
