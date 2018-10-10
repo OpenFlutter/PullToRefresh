@@ -5,10 +5,10 @@ import 'package:flutterapp/bin/dragablegridviewbin.dart';
 
 typedef CreateChild = Widget Function(int position);
 
-class DragAbleGridView extends StatefulWidget{
+class DragAbleGridView <T extends DragAbleGridViewBin> extends StatefulWidget{
 
   final CreateChild child;
-  final List<DragAbleGridViewBin> itemBins;
+  final List<T> itemBins;
   final int crossAxisCount;
   //为了便于计算 Item之间的空隙都用crossAxisSpacing
   final double crossAxisSpacing;
@@ -16,6 +16,7 @@ class DragAbleGridView extends StatefulWidget{
   //cross-axis to the main-axis
   final double childAspectRatio;
   final EdgeInsets itemPadding;
+  final Decoration decoration;
 
 
   DragAbleGridView({
@@ -26,6 +27,7 @@ class DragAbleGridView extends StatefulWidget{
     this.mainAxisSpacing:0.0,
     this.crossAxisSpacing:0.0,
     this.itemPadding,
+    this.decoration,
   }) :assert(
   child!=null,
   itemBins!=null,
@@ -33,11 +35,11 @@ class DragAbleGridView extends StatefulWidget{
 
   @override
   State<StatefulWidget> createState() {
-    return new DragAbleGridViewState();
+    return new DragAbleGridViewState<T>();
   }
 }
 
-class  DragAbleGridViewState extends State<DragAbleGridView> with SingleTickerProviderStateMixin{
+class  DragAbleGridViewState <T extends DragAbleGridViewBin> extends State<DragAbleGridView> with SingleTickerProviderStateMixin{
 
   var physics=new ScrollPhysics();
   double screenWidth;
@@ -253,10 +255,7 @@ class  DragAbleGridViewState extends State<DragAbleGridView> with SingleTickerPr
                           key: widget.itemBins[index].containerKeyChild,
                           transform: new Matrix4.translationValues(widget.itemBins[index].dragPointX, widget.itemBins[index].dragPointY, 0.0),
                           padding: widget.itemPadding,
-                          decoration: new BoxDecoration(
-                            borderRadius: BorderRadius.all(new Radius.circular(3.0)),
-                            border: new Border.all(color: Colors.blue),
-                          ),
+                          decoration: widget.decoration,
                           child: widget.child(index),
                         ),
                       )
@@ -349,10 +348,6 @@ class  DragAbleGridViewState extends State<DragAbleGridView> with SingleTickerPr
         &&(dragPointY.abs()-yBlankPlace)%(itemHeightChild+yBlankPlace)<yMaxCoverageArea;
 
     if(xTransferAbleIfLessThanW||yTransferAbleIfLessThanH||xTransferAbleIfMoreThanW||yTransferAbleIfMoreThanH){
-      //if((xTransferAbleIfLessThanW&&yTransferAbleIfLessThanH)
-      //   ||(xTransferAbleIfLessThanW&&yTransferAbleIfMoreThanH)
-      //   ||(yTransferAbleIfLessThanH&&xTransferAbleIfMoreThanW)
-      //   ||(xTransferAbleIfMoreThanW&&yTransferAbleIfMoreThanH)){
       int y=0;
       int x=0;
 
@@ -423,22 +418,27 @@ class  DragAbleGridViewState extends State<DragAbleGridView> with SingleTickerPr
         x=onDragMoreThanWidthX(index,xBlankPlace,dragPointX);
       }
 
-      if(endPosition!=x+y&&!controller.isAnimating&&x+y<widget.itemBins.length&&x+y>=0){
+      if(endPosition!=x+y
+          &&!controller.isAnimating
+          &&x+y<widget.itemBins.length
+          &&x+y>=0
+          &&widget.itemBins[index].dragAble){
         endPosition=x+y;
-        controller.forward();
+        _future=controller.forward();
       }
     }
   }
 
+  Future _future;
 
   void onPanEndEvent(index)async {
+    widget.itemBins[index].dragAble=false;
     if(controller.isAnimating){
-      await Future.delayed(new Duration(milliseconds: 300));
+      await _future;
     }
     setState(() {
-      widget.itemBins[index].dragAble=false;
-      List<DragAbleGridViewBin> itemBi = new List();
-      DragAbleGridViewBin bin;
+      List<T> itemBi = new List();
+      T bin;
       for (int i = 0; i < itemPositions.length; i++) {
         bin=widget.itemBins[itemPositions[i]];
         bin.dragPointX = 0.0;

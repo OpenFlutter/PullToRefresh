@@ -1,4 +1,5 @@
-import 'package:flutterapp/bin/dragablegridviewbin.dart';
+//import 'package:flutterapp/bin/dragablegridviewbin.dart';
+import 'package:dragablegridview_flutter/dragablegridviewbin.dart';
 
 class ItemBin extends DragAbleGridViewBin{
 

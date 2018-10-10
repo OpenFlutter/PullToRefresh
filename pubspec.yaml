@@ -14,6 +14,7 @@ dependencies:
   transparent_image: ^0.1.0
   pulltorefresh_flutter: ^0.0.4
   marquee_flutter: ^0.0.2
+  dragablegridview_flutter: ^0.0.3
   #cached_network_image: ^0.4.1
 
 dev_dependencies:

@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutterapp/adsorptionview.dart';
+import 'package:flutterapp/adsorptionviewdemo.dart';
 import 'package:flutterapp/dragablegridviewdemo.dart';
 import 'package:flutterapp/pulltorefreshdemo.dart';
 import './bin/appinfobin.dart';
@@ -69,7 +69,7 @@ class ListState extends State<ListViewWidgets>{
                 }));
               }else if(index==5){
                 Navigator.of(context).push(new MaterialPageRoute(builder: (_) {
-                  return new AdsorptionView();
+                  return new AdsorptionViewDemo();
                 }));
               }
 

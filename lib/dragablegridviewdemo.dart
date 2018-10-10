@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutterapp/bin/gridviewitembin.dart';
-import 'package:flutterapp/components/dragablegridview.dart';
+//import 'package:flutterapp/components/dragablegridview.dart';
+import 'package:dragablegridview_flutter/dragablegridview_flutter.dart';
 
 
 class DragAbleGridViewDemo extends StatefulWidget{
@@ -42,8 +43,12 @@ class DragAbleGridViewDemoState extends State<DragAbleGridViewDemo>{
         title: new Text("可拖拽GridView"),
       ),
       body: new DragAbleGridView(
-//        mainAxisSpacing:10.0,
-//        crossAxisSpacing:10.0,
+        decoration: new BoxDecoration(
+          borderRadius: BorderRadius.all(new Radius.circular(3.0)),
+          border: new Border.all(color: Colors.blue),
+        ),
+        mainAxisSpacing:10.0,
+        crossAxisSpacing:10.0,
         itemPadding: EdgeInsets.fromLTRB(8.0, 5.0, 8.0, 5.0),
         childAspectRatio:1.8,
         crossAxisCount: 4,
