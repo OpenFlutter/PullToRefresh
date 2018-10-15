@@ -1,13 +1,11 @@
-
 `由于GIF太多（大），演示的图片可能会卡，请移步至demonstrationgif文件夹下可查看单个GIF图片`
 
 ## PullToRefresh ##
-
 #### Usage
 Add this to your package's pubspec.yaml file:
 
 	dependencies:
-	  pulltorefresh_flutter: "^0.0.3"
+	  pulltorefresh_flutter: "^0.1.1"
 	  
 If you want to use the default refresh image of this project (the rotated image), please download https://raw.githubusercontent.com/baoolong/PullToRefresh_Flutter/master/images/refresh.png to your images folder, and Pubspec.yaml is declared as follows.
 
@@ -40,26 +38,37 @@ A Marquee widght with ListView,Can scroll vertically or horizontally
 Add this to your package's pubspec.yaml file:
 
 	dependencies:
-	  marquee_flutter: ^0.0.2
+	  marquee_flutter: ^0.1.1
 	  
 Add it to your dart file:
 
     import 'package:marquee_flutter/marquee_flutter.dart';
     
 #### Example
-   [https://github.com/baoolong/MarqueeWidget](https://github.com/baoolong/MarqueeWidget)
+[https://github.com/baoolong/MarqueeWidget](https://github.com/baoolong/MarqueeWidget)
 
     
 采用ListView绘制，将ListView设置为不可手动滑动，然后启动Timer来回拖动，造成跑马灯的错觉
 <img width="45%" height="45%" src="https://raw.githubusercontent.com/baoolong/PullToRefresh/master/demonstrationgif/20180814_142220.gif"/>
-
-## WheelView ##
-模拟滚动（只是不断的偏移，造成滚动的错觉），由于编码没有考虑清楚，Item和Item之间的高度是固定的，导致看起来没有物理既视感（具体可看图片），如果想改动，建议采用角度机制进行排列，录制的GIF滑动快时看起来有问题，实际正常
-<img width="45%" height="45%" src="https://raw.githubusercontent.com/baoolong/PullToRefresh/master/demonstrationgif/20180814_142304.gif"/>
-
 ## DragableGridView 可拖动GridView ##
 采用GridView +OverflowBox +Container的transform属性来完成，由于计算不精确，考虑不周全，现在还有很多问题，后续改进，学习的朋友可以拿去自己研究改进，添加新功能，下面是示例图
+### Usage
 
+Add this to your package's pubspec.yaml file:
+
+	dependencies:
+	  dragablegridview_flutter: ^0.1.2
+	  
+Add it to your dart file:
+
+    import 'package:dragablegridview_flutter/dragablegridview_flutter.dart';
+    
+And GridView dataBin must extends DragAbleGridViewBin ,Add it to your dataBin file 
+    
+    import 'package:dragablegridview_flutter/dragablegridviewbin.dart';
+    
+### Example
+[https://github.com/baoolong/DragableGridview](https://github.com/baoolong/DragableGridview)
 ----------
 
 <img width="45%" height="45%" src="https://raw.githubusercontent.com/baoolong/PullToRefresh/master/demonstrationgif/20180821_094948.gif"/>        <img width="45%" height="45%" src="https://raw.githubusercontent.com/baoolong/PullToRefresh/master/demonstrationgif/20180822_115107.gif"/>
@@ -67,4 +76,20 @@ Add it to your dart file:
 
 ## Sticky_Headers ##
 ListView吸顶控件，本控件只适用于ListView的Item高度固定的布局（AdsorptionViewState），如果高度不固定会有偏差。已经更新了非固定高度的吸顶布局（AdsorptionViewNotEqualHeightState），有一点点小问题，请自行解决，里面有如何获取ListView第一个可见Item的方法，可供参考
+### Usage
+Add this to your package's pubspec.yaml file:
+
+	dependencies:
+	  adsorptionview_flutter: ^0.1.1
+	  
+Add it to your dart file:
+
+    import 'package:adsorptionview_flutter/adsorptionview_flutter.dart';
+    
+And ListView dataBin must extends AdsorptionData ,Add it to your dataBin file
+    
+    import 'package:adsorptionview_flutter/adsorptiondatabin.dart';
+
+### Example
+[https://github.com/baoolong/Adsorptionview](https://github.com/baoolong/Adsorptionview)
 <img width="45%" height="45%" src="https://raw.githubusercontent.com/baoolong/PullToRefresh/master/demonstrationgif/20180912_100745.gif"/>

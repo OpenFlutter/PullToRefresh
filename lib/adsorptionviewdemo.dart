@@ -114,11 +114,10 @@ class AdsorptionViewState extends State<AdsorptionViewDemo>{
         title: new Text("吸附布局"),
       ),
       body:new AdsorptionView(
-        isEqualHeightItem: false,
+        isEqualHeightItem: true,
         adsorptionDatas: adsorptionDatas,
         generalItemChild: (AdsorptionListBin bin) {
           return new Container(
-            height: 50.0,
             alignment: Alignment.centerLeft,
             margin: EdgeInsets.fromLTRB(15.0, 0.0, 0.0, 0.0),
             child: new Text(
@@ -130,7 +129,6 @@ class AdsorptionViewState extends State<AdsorptionViewDemo>{
         headChild: (AdsorptionListBin bin) {
           return new Container(
             color: Colors.grey,
-            height: 60.0,
             alignment: Alignment.centerLeft,
             padding: EdgeInsets.fromLTRB(15.0, 0.0, 0.0, 0.0),
             child: new Text(

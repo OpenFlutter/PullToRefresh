@@ -1,15 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
-import 'package:flutterapp/bin/adsorptionlistbin.dart';
+import 'package:flutterapp/bin/adsorptiondatabin.dart';
 
-typedef Widget GetHearWidget(AdsorptionListBin bin);
-typedef Widget GetGeneralItem(AdsorptionListBin bin);
+typedef Widget GetHearWidget <M extends AdsorptionData> (M bin);
+typedef Widget GetGeneralItem <M extends AdsorptionData> (M bin);
 
-class AdsorptionView<T extends AdsorptionListBin> extends StatefulWidget{
+class AdsorptionView<T extends AdsorptionData> extends StatefulWidget{
 
   final List<T> adsorptionDatas;
-  final GetHearWidget headChild;
-  final GetGeneralItem generalItemChild;
+  final GetHearWidget<T> headChild;
+  final GetGeneralItem<T> generalItemChild;
   final double itemHeight;
   final double itemWidth;
   final double cacheExtent;
@@ -32,15 +32,15 @@ class AdsorptionView<T extends AdsorptionListBin> extends StatefulWidget{
   @override
   State<StatefulWidget> createState() {
     if(isEqualHeightItem) {
-      return new AdsorptionViewState();
+      return new AdsorptionViewState<T>();
     }else{
-      return new AdsorptionViewNotEqualHeightState();
+      return new AdsorptionViewNotEqualHeightState<T>();
     }
   }
 }
 
 ///此控件适用于固定高度的ListView
-class AdsorptionViewState<T extends AdsorptionListBin> extends State<AdsorptionView>{
+class AdsorptionViewState<T extends AdsorptionData> extends State<AdsorptionView<T>>{
 
   ScrollController scrollController=new ScrollController();
   double headerOffset=0.0;
@@ -147,7 +147,7 @@ class AdsorptionViewState<T extends AdsorptionListBin> extends State<AdsorptionV
 
 
 ///此控件适用于非固定高度的ListView
-class AdsorptionViewNotEqualHeightState<T extends AdsorptionListBin> extends State<AdsorptionView>{
+class AdsorptionViewNotEqualHeightState<T extends AdsorptionData> extends State<AdsorptionView<T>>{
 
   ScrollController scrollController=new ScrollController();
   double itemHeight=50.0;
