@@ -52,7 +52,7 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="main.dart" pinned="false" current-in-tab="false">
+      <file leaf-file-name="main.dart" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/lib/main.dart">
           <provider selected="true" editor-type-id="text-editor">
             <state relative-caret-position="270">
@@ -60,15 +60,6 @@
               <folding>
                 <element signature="e#0#39#0" expanded="true" />
               </folding>
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="README.md" pinned="false" current-in-tab="true">
-        <entry file="file://$PROJECT_DIR$/README.md">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="434">
-              <caret line="75" column="173" selection-start-line="75" selection-start-column="173" selection-end-line="75" selection-end-column="173" />
             </state>
           </provider>
         </entry>
@@ -171,7 +162,7 @@
       </list>
     </option>
   </component>
-  <component name="ProjectFrameBounds" extendedState="6">
+  <component name="ProjectFrameBounds" extendedState="7">
     <option name="x" value="608" />
     <option name="y" value="33" />
     <option name="width" value="1325" />
@@ -355,7 +346,7 @@
     </todo-panel>
   </component>
   <component name="ToolWindowManager">
-    <frame x="-8" y="-8" width="1936" height="1056" extended-state="6" />
+    <frame x="-8" y="-8" width="1936" height="1056" extended-state="7" />
     <editor active="true" />
     <layout>
       <window_info anchor="bottom" id="TODO" order="6" weight="0.32885906" />
@@ -702,6 +693,13 @@
         </state>
       </provider>
     </entry>
+    <entry file="file://$PROJECT_DIR$/README.md">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="434">
+          <caret line="75" column="173" selection-start-line="75" selection-start-column="173" selection-end-line="75" selection-end-column="173" />
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/lib/main.dart">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="270">
@@ -709,13 +707,6 @@
           <folding>
             <element signature="e#0#39#0" expanded="true" />
           </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/README.md">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="434">
-          <caret line="75" column="173" selection-start-line="75" selection-start-column="173" selection-end-line="75" selection-end-column="173" />
         </state>
       </provider>
     </entry>

@@ -1,6 +1,6 @@
 `由于GIF太多（大），演示的图片可能会卡，请移步至demonstrationgif文件夹下可查看单个GIF图片`
 
-## PullToRefresh ##
+## PullToRefresh  [![pub package](https://img.shields.io/pub/v/pulltorefresh_flutter.svg)](https://pub.dartlang.org/packages/pulltorefresh_flutter)
 #### Usage
 Add this to your package's pubspec.yaml file:
 
@@ -29,7 +29,7 @@ Add it to your dart file:
 
 <img width="38%" height="38%" src="https://raw.githubusercontent.com/baoolong/PullToRefresh/master/demonstrationgif/20180814_142135.gif"/>
 
-## Marquee（跑马灯） ##
+## Marquee（跑马灯） [![pub package](https://img.shields.io/pub/v/marquee_flutter.svg)](https://pub.dartlang.org/packages/marquee_flutter)
 
 一个用ListView做的跑马灯，可以垂直方向滚动，也可以水平方向滚动
 
@@ -51,7 +51,7 @@ Add it to your dart file:
     
 采用ListView绘制，将ListView设置为不可手动滑动，然后启动Timer来回拖动，造成跑马灯的错觉
 <img width="38%" height="38%" src="https://raw.githubusercontent.com/baoolong/PullToRefresh/master/demonstrationgif/20180814_142220.gif"/>
-## DragableGridView 可拖动GridView ##
+## DragableGridView  [![pub package](https://img.shields.io/pub/v/dragablegridview_flutter.svg)](https://pub.dartlang.org/packages/dragablegridview_flutter)
 采用GridView +OverflowBox +Container的transform属性来完成，由于计算不精确，考虑不周全，现在还有很多问题，后续改进，学习的朋友可以拿去自己研究改进，添加新功能，下面是示例图
 ### Usage
 
@@ -76,7 +76,7 @@ And GridView dataBin must extends DragAbleGridViewBin ,Add it to your dataBin fi
 <img width="38%" height="38%" src="https://raw.githubusercontent.com/baoolong/PullToRefresh/master/demonstrationgif/20180821_094948.gif"/>        <img width="38%" height="38%" src="https://raw.githubusercontent.com/baoolong/PullToRefresh/master/demonstrationgif/20180822_115107.gif"/>
 
 
-## Sticky_Headers ##
+## AdsorptionView [![pub package](https://img.shields.io/pub/v/adsorptionview_flutter.svg)](https://pub.dartlang.org/packages/adsorptionview_flutter)
 ListView吸顶控件，本控件只适用于ListView的Item高度固定的布局（AdsorptionViewState），如果高度不固定会有偏差。已经更新了非固定高度的吸顶布局（AdsorptionViewNotEqualHeightState），有一点点小问题，请自行解决，里面有如何获取ListView第一个可见Item的方法，可供参考
 ### Usage
 Add this to your package's pubspec.yaml file:
