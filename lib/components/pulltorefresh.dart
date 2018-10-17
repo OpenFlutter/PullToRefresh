@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
@@ -108,11 +109,11 @@ class PullAndPushState extends State<PullAndPush> with TickerProviderStateMixin{
             //动画结束，高度回到0，上下拉刷新彻底结束，ListView恢复正常
           }else if(states==StateModule.PUSH){
             topItemHeight=0.0;
-            widget.scrollPhysicsChanged(new AlwaysScrollableScrollPhysics());
+            widget.scrollPhysicsChanged(new RefreshAlwaysScrollPhysics());
             states=StateModule.IDLE;
           }else if(states==StateModule.PULL){
             bottomItemHeight=0.0;
-            widget.scrollPhysicsChanged(new AlwaysScrollableScrollPhysics());
+            widget.scrollPhysicsChanged(new RefreshAlwaysScrollPhysics());
             states=StateModule.IDLE;
             isPulling=false;
           }
@@ -260,13 +261,13 @@ class PullAndPushState extends State<PullAndPush> with TickerProviderStateMixin{
               onNotification: (ScrollNotification  notification){
                 ScrollMetrics metrics=notification.metrics;
                 //Header刷新的布局可见时，且当手指反方向拖动（由下向上），notification 为 ScrollUpdateNotification，这个时候让头部刷新布局的高度+delta.dy(此时dy为负数)
-                // 来缩小头部刷新布局的高度，当完全看不见时，将scrollPhysics设置为AlwaysScrollableScrollPhysics，来保持ListView的正常滑动
+                // 来缩小头部刷新布局的高度，当完全看不见时，将scrollPhysics设置为RefreshAlwaysScrollPhysics，来保持ListView的正常滑动
                 if(notification is ScrollUpdateNotification&&topItemHeight>0.0){
                   setState(() {
                     //如果头部的布局高度<0时，将topItemHeight=0；并恢复ListView的滑动
                     if(topItemHeight+notification.dragDetails.delta.dy/2<0.0){
                       topItemHeight=0.0;
-                      widget.scrollPhysicsChanged(new AlwaysScrollableScrollPhysics());
+                      widget.scrollPhysicsChanged(new RefreshAlwaysScrollPhysics());
                     }else {
                       //当刷新布局可见时，让头部刷新布局的高度+delta.dy(此时dy为负数)，来缩小头部刷新布局的高度
                       topItemHeight = topItemHeight + notification.dragDetails.delta.dy / 2;
@@ -274,7 +275,7 @@ class PullAndPushState extends State<PullAndPush> with TickerProviderStateMixin{
                   });
                 }else if(notification is ScrollUpdateNotification&&bottomItemHeight>0.0){
                   //底部的布局可见时 ，且手指反方向拖动（由上向下），这时notification 为 ScrollUpdateNotification，这个时候让底部加载布局的高度-delta.dy(此时dy为正数数)
-                  //来缩小底部加载布局的高度，当完全看不见时，将scrollPhysics设置为AlwaysScrollableScrollPhysics，来保持ListView的正常滑动
+                  //来缩小底部加载布局的高度，当完全看不见时，将scrollPhysics设置为RefreshAlwaysScrollPhysics，来保持ListView的正常滑动
 
                   //当上拉加载时，不知道什么原因，dragDetails可能会为空，导致抛出异常，会发生很明显的卡顿，所以这里必须判空
                   if(notification.dragDetails==null){
@@ -284,7 +285,7 @@ class PullAndPushState extends State<PullAndPush> with TickerProviderStateMixin{
                     //如果底部的布局高度<0时，bottomItemHeight=0；并恢复ListView的滑动
                     if(bottomItemHeight-notification.dragDetails.delta.dy/2<0.0) {
                       bottomItemHeight=0.0;
-                      widget.scrollPhysicsChanged(new AlwaysScrollableScrollPhysics());
+                      widget.scrollPhysicsChanged(new RefreshAlwaysScrollPhysics());
                     }else{
                       if(notification.dragDetails.delta.dy>0){
                         //当加载的布局可见时，让上拉加载布局的高度-delta.dy(此时dy为正数数)，来缩小底部的加载布局的高度
@@ -321,7 +322,7 @@ class PullAndPushState extends State<PullAndPush> with TickerProviderStateMixin{
                 }else if(notification is UserScrollNotification&&bottomItemHeight>0.0&&notification.direction==ScrollDirection.reverse){
                   //反向再反向（恢复正向拖动）
 
-                  widget.scrollPhysicsChanged(new AlwaysScrollableScrollPhysics());
+                  widget.scrollPhysicsChanged(new RefreshAlwaysScrollPhysics());
 
                 }else if(metrics.atEdge&&notification is OverscrollNotification){
                   //OverscrollNotification 和 metrics.atEdge 说明正在下拉或者 上拉
@@ -333,7 +334,7 @@ class PullAndPushState extends State<PullAndPush> with TickerProviderStateMixin{
                     setState(() {
                       if(notification.dragDetails.delta.dy/2+topItemHeight<0.0){
                         topItemHeight=0.0;
-                        widget.scrollPhysicsChanged(new AlwaysScrollableScrollPhysics());
+                        widget.scrollPhysicsChanged(new RefreshAlwaysScrollPhysics());
                       }else{
                         if(topItemHeight>150.0){
                           widget.scrollPhysicsChanged(new NeverScrollableScrollPhysics());
@@ -355,7 +356,7 @@ class PullAndPushState extends State<PullAndPush> with TickerProviderStateMixin{
                     setState(() {
                       if(-notification.dragDetails.delta.dy/2+bottomItemHeight<0.0){
                         bottomItemHeight=0.0;
-                        widget.scrollPhysicsChanged(new AlwaysScrollableScrollPhysics());
+                        widget.scrollPhysicsChanged(new RefreshAlwaysScrollPhysics());
                       }else{
                         if(bottomItemHeight>75.0){
                           if(isPulling){
@@ -388,8 +389,6 @@ class PullAndPushState extends State<PullAndPush> with TickerProviderStateMixin{
       ),
     );
   }
-
-  //ListView get getListView => this.listView;
 }
 
 ///切记 继承ScrollPhysics  必须重写applyTo，，在NeverScrollableScrollPhysics类里面复制就可以
@@ -446,5 +445,83 @@ class MyBehavior extends ScrollBehavior {
     }else {
       return super.buildViewportChrome(context, child, axisDirection);
     }
+  }
+}
+
+///切记 继承ScrollPhysics  必须重写applyTo，，在NeverScrollableScrollPhysics类里面复制就可以
+///此类用来控制IOS过度滑动出现弹簧效果
+class RefreshAlwaysScrollPhysics extends AlwaysScrollableScrollPhysics {
+  const RefreshAlwaysScrollPhysics({ ScrollPhysics parent }) : super(parent: parent);
+
+  @override
+  RefreshAlwaysScrollPhysics applyTo(ScrollPhysics ancestor) {
+    return new RefreshAlwaysScrollPhysics(parent: buildParent(ancestor));
+  }
+
+  @override
+  bool shouldAcceptUserOffset(ScrollMetrics position) {
+    return true;
+  }
+
+  ///防止ios设备上出现弹簧效果
+  @override
+  double applyBoundaryConditions(ScrollMetrics position, double value) {
+    assert(() {
+      if (value == position.pixels) {
+        throw FlutterError(
+            '$runtimeType.applyBoundaryConditions() was called redundantly.\n'
+                'The proposed new position, $value, is exactly equal to the current position of the '
+                'given ${position.runtimeType}, ${position.pixels}.\n'
+                'The applyBoundaryConditions method should only be called when the value is '
+                'going to actually change the pixels, otherwise it is redundant.\n'
+                'The physics object in question was:\n'
+                '  $this\n'
+                'The position object in question was:\n'
+                '  $position\n'
+        );
+      }
+      return true;
+    }());
+    if (value < position.pixels && position.pixels <= position.minScrollExtent) // underscroll
+      return value - position.pixels;
+    if (position.maxScrollExtent <= position.pixels && position.pixels < value) // overscroll
+      return value - position.pixels;
+    if (value < position.minScrollExtent && position.minScrollExtent < position.pixels) // hit top edge
+      return value - position.minScrollExtent;
+    if (position.pixels < position.maxScrollExtent && position.maxScrollExtent < value) // hit bottom edge
+      return value - position.maxScrollExtent;
+    return 0.0;
+  }
+
+  ///防止ios设备出现卡顿
+  @override
+  Simulation createBallisticSimulation(ScrollMetrics position, double velocity) {
+    final Tolerance tolerance = this.tolerance;
+    if (position.outOfRange) {
+      double end;
+      if (position.pixels > position.maxScrollExtent)
+        end = position.maxScrollExtent;
+      if (position.pixels < position.minScrollExtent)
+        end = position.minScrollExtent;
+      assert(end != null);
+      return ScrollSpringSimulation(
+          spring,
+          position.pixels,
+          position.maxScrollExtent,
+          math.min(0.0, velocity),
+          tolerance: tolerance
+      );
+    }
+    if (velocity.abs() < tolerance.velocity)
+      return null;
+    if (velocity > 0.0 && position.pixels >= position.maxScrollExtent)
+      return null;
+    if (velocity < 0.0 && position.pixels <= position.minScrollExtent)
+      return null;
+    return ClampingScrollSimulation(
+      position: position.pixels,
+      velocity: velocity,
+      tolerance: tolerance,
+    );
   }
 }

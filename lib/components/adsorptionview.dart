@@ -47,6 +47,7 @@ class AdsorptionViewState<T extends AdsorptionData> extends State<AdsorptionView
   T headerStr;
   GlobalKey key=new GlobalKey();
   double beforeScroll=0.0;
+  ScrollPhysics scrollPhysics=new ClampingScrollPhysics()
 
   @override
   void initState() {
@@ -96,6 +97,7 @@ class AdsorptionViewState<T extends AdsorptionData> extends State<AdsorptionView
     return new Stack(
       children: <Widget>[
         new ListView.builder(
+          physics: scrollPhysics,
           cacheExtent: widget.cacheExtent,
           controller: scrollController,
           itemCount: widget.adsorptionDatas.length,

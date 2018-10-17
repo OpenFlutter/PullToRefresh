@@ -3,8 +3,8 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
-//import 'package:flutterapp/components/pulltorefresh.dart';
-import 'package:pulltorefresh_flutter/pulltorefresh_flutter.dart';
+import 'package:flutterapp/components/pulltorefresh.dart';
+//import 'package:pulltorefresh_flutter/pulltorefresh_flutter.dart';
 
 
 class PullAndPushTest extends StatefulWidget{
@@ -20,7 +20,8 @@ class PullAndPushTestState extends State<PullAndPushTest>{
   List<String> addStrs=["a","b","c","d","e","f","g","h","i","j","k","l","m","n","o","p","q","r","s","t","u","v","w","x","y","z"];
   List<String> strs=["1","2","3","4","5","6","7","8","9","0"];
   ScrollController controller=new ScrollController();
-  ScrollPhysics scrollPhysics=new AlwaysScrollableScrollPhysics();
+  //For compatibility with ios ,must use RefreshAlwaysScrollPhysics ;为了兼容ios 必须使用RefreshAlwaysScrollPhysics
+  ScrollPhysics scrollPhysics=new RefreshAlwaysScrollPhysics();
   //使用系统的请求
   var httpClient = new HttpClient();
   var url = "https://github.com/";
