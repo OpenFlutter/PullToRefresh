@@ -7,36 +7,45 @@ import 'package:flutter/rendering.dart';
 typedef Future LoadData(bool isPullDown);
 typedef ScrollPhysicsChanged(ScrollPhysics physics);
 
+
+enum  StateModule {
+  //  上拉加载的状态 分别为 闲置 上拉  下拉
+  IDLE, PUSH, PULL
+}
+
+
 class PullAndPush extends StatefulWidget{
 
   final LoadData loadData;
   final ScrollPhysicsChanged scrollPhysicsChanged;
-  final Widget pullToRefreshTopHeader=null;
   final ScrollView listView;
-  final Widget pullToRefreshBottomHeader=null;
   //去掉过度滑动时ListView顶部的蓝色光晕效果
-  final bool isRemoveGlow;
-
+  final bool isShowLeadingGlow;
+  final bool isShowTrailingGlow;
   final Color backgroundColor;
   final String refreshIconPath;
   final String tipText;
   final Color textColor;
+  final bool isPullEnable;
+  final bool isPushEnable;
+  final Color glowColor;
 
   PullAndPush({
     @required this.loadData,
     @required this.scrollPhysicsChanged,
-    //this.pullToRefreshTopHeader,
-    //this.pullToRefreshBottomHeader,
     this.backgroundColor:Colors.grey,
     this.tipText:"松手即可刷新",
     this.refreshIconPath:"images/refresh.png",
-    this.isRemoveGlow:true,
+    this.isPullEnable:true,
+    this.isPushEnable:true,
+    this.isShowLeadingGlow:false,
+    this.isShowTrailingGlow:false,
     this.textColor:Colors.white,
-    @required this.listView})
-      :assert(
-        listView!=null,
-        loadData!=null,
-      );
+    this.glowColor:Colors.blue,
+    @required this.listView}
+    ):assert(
+        listView!=null&&loadData!=null,
+    );
 
   @override
   State<StatefulWidget> createState() {
@@ -139,8 +148,8 @@ class PullAndPushState extends State<PullAndPush> with TickerProviderStateMixin{
   }
 
   Widget getTopBottomHeader(){
-    if(widget.pullToRefreshBottomHeader==null){
-      return  new Container(   //上拉加载布局
+    if(widget.isPushEnable) {
+      return new Container( //上拉加载布局
           alignment: Alignment.bottomCenter,
           color: widget.backgroundColor,
           height: bottomItemHeight,
@@ -152,11 +161,13 @@ class PullAndPushState extends State<PullAndPush> with TickerProviderStateMixin{
                 children: <Widget>[
                   new Align(
                     alignment: Alignment.centerLeft,
-                    child:new RotationTransition(
-                      child: new Image.asset(widget.refreshIconPath,height: 45.0,width: 45.0,),
-                      turns: new Tween(begin: 100.0, end: 0.0).animate(animationControllerWait)
-                        ..addStatusListener((animationStatus){
-                          if(animationStatus==AnimationStatus.completed){
+                    child: new RotationTransition(
+                      child: new Image.asset(
+                        widget.refreshIconPath, height: 45.0, width: 45.0,),
+                      turns: new Tween(begin: 100.0, end: 0.0).animate(
+                          animationControllerWait)
+                        ..addStatusListener((animationStatus) {
+                          if (animationStatus == AnimationStatus.completed) {
                             animationControllerWait.repeat();
                           }
                         }),
@@ -165,7 +176,8 @@ class PullAndPushState extends State<PullAndPush> with TickerProviderStateMixin{
 
                   new Align(
                     alignment: Alignment.centerRight,
-                    child:new Text(widget.tipText,style: new TextStyle(color: widget.textColor),),
+                    child: new Text(widget.tipText,
+                      style: new TextStyle(color: widget.textColor),),
                   ),
                 ],
               ),
@@ -173,37 +185,40 @@ class PullAndPushState extends State<PullAndPush> with TickerProviderStateMixin{
           )
       );
     }else{
-      return widget.pullToRefreshBottomHeader;
+      return new Container();
     }
   }
 
   Widget getTopHeader(){
-    if(widget.pullToRefreshTopHeader==null){
-      return  new Container( //下拉刷新的布局
+    if(widget.isPullEnable) {
+      return new Container( //下拉刷新的布局
           color: widget.backgroundColor,
           height: topItemHeight,
           child: new Center(
             child: new Container(
-              height: topItemHeight>50.0?50.0:topItemHeight,  //在这里设置布局的宽高
+              height: topItemHeight > 50.0 ? 50.0 : topItemHeight, //在这里设置布局的宽高
               width: 150.0,
               child: new Row(
                 children: <Widget>[
                   new Align(
                     alignment: Alignment.centerLeft,
-                    child:new RotationTransition(  //布局中加载时动画的weight
-                      child: new Image.asset(widget.refreshIconPath,height: 45.0,width: 45.0,),
-                      turns: new Tween(begin: 100.0, end: 0.0).animate(animationControllerWait)
-                        ..addStatusListener((animationStatus){
-                          if(animationStatus==AnimationStatus.completed){
+                    child: new RotationTransition( //布局中加载时动画的weight
+                      child: new Image.asset(
+                        widget.refreshIconPath, height: 45.0, width: 45.0,),
+                      turns: new Tween(begin: 100.0, end: 0.0).animate(
+                          animationControllerWait)
+                        ..addStatusListener((animationStatus) {
+                          if (animationStatus == AnimationStatus.completed) {
                             animationControllerWait.repeat();
                           }
                         }),
                     ),
                   ),
 
-                  new Align(   //这里是布局中的文字
-                    child:new ClipRect(
-                      child:new Text(widget.tipText,style: new TextStyle(color: widget.textColor),),
+                  new Align( //这里是布局中的文字
+                    child: new ClipRect(
+                      child: new Text(widget.tipText,
+                        style: new TextStyle(color: widget.textColor),),
                     ),
                     alignment: Alignment.centerRight,
                   ),
@@ -213,7 +228,7 @@ class PullAndPushState extends State<PullAndPush> with TickerProviderStateMixin{
           )
       );
     }else{
-      return widget.pullToRefreshTopHeader;
+      return new Container();
     }
   }
 
@@ -248,6 +263,8 @@ class PullAndPushState extends State<PullAndPush> with TickerProviderStateMixin{
     animationControllerWait.dispose();
     super.dispose();
   }
+
+
 
   @override
   Widget build(BuildContext context) {
@@ -330,7 +347,7 @@ class PullAndPushState extends State<PullAndPush> with TickerProviderStateMixin{
                   //如果notification.overscroll<0.0 说明是在下拉刷新，这里根据拉的距离设定高度的增加范围-->小于50时  是拖动速度的1/2，高度在50-90时 是
                   //拖动速度的1/4  .........若果超过150，结束拖动，自动开始刷新，拖过刷新布局高度小于0，恢复ListView的正常拖动
                   //当Item的数量不能铺满全屏时  上拉加载会引起下拉布局的出现，所以这里要判断下bottomItemHeight<0.5
-                  if(notification.overscroll<0.0&&bottomItemHeight<0.5){
+                  if(notification.overscroll<0.0&&bottomItemHeight<0.5&&widget.isPullEnable){
                     setState(() {
                       if(notification.dragDetails.delta.dy/2+topItemHeight<0.0){
                         topItemHeight=0.0;
@@ -348,7 +365,7 @@ class PullAndPushState extends State<PullAndPush> with TickerProviderStateMixin{
                         }
                       }
                     });
-                  }else if(topItemHeight<0.5){
+                  }else if(topItemHeight<0.5&&widget.isPushEnable){
                     //此处同上
                     if(notification.dragDetails==null){
                       return true;
@@ -379,7 +396,7 @@ class PullAndPushState extends State<PullAndPush> with TickerProviderStateMixin{
                 return true;
               },
               child:ScrollConfiguration(
-                behavior: MyBehavior(widget.isRemoveGlow),
+                behavior: MyBehavior(widget.isShowLeadingGlow,widget.isShowTrailingGlow,widget.glowColor),
                 child: widget.listView,
               ),
             ),
@@ -390,6 +407,8 @@ class PullAndPushState extends State<PullAndPush> with TickerProviderStateMixin{
     );
   }
 }
+
+
 
 ///切记 继承ScrollPhysics  必须重写applyTo，，在NeverScrollableScrollPhysics类里面复制就可以
 class RefreshScrollPhysics extends ScrollPhysics {
@@ -426,27 +445,37 @@ class RefreshScrollPhysics extends ScrollPhysics {
 }
 
 
-enum  StateModule {
-  //  上拉加载的状态 分别为 闲置 上拉  下拉
-  IDLE, PUSH, PULL
-}
+
 
 ///可去掉过度滑动时ListView顶部的蓝色光晕效果
 class MyBehavior extends ScrollBehavior {
 
-  final bool isRemoveGlow;
+  final bool isShowLeadingGlow;
+  final bool isShowTrailingGlow;
+  final Color _kDefaultGlowColor;
 
-  MyBehavior(this.isRemoveGlow);
+  MyBehavior(this.isShowLeadingGlow,this.isShowTrailingGlow,this._kDefaultGlowColor);
 
   @override
   Widget buildViewportChrome(BuildContext context, Widget child, AxisDirection axisDirection) {
-    if(isRemoveGlow){
-      return child;
+
+    //如果头部或底部有一个 不需要 显示光晕时 返回GlowingOverscrollIndicator
+    if(!isShowLeadingGlow||!isShowTrailingGlow){
+      return new  GlowingOverscrollIndicator(
+        showLeading: isShowLeadingGlow,
+        showTrailing: isShowTrailingGlow,
+        child: child,
+        axisDirection: axisDirection,
+        color: _kDefaultGlowColor,
+      );
     }else {
+      //都需要光晕时  返回系统默认
       return super.buildViewportChrome(context, child, axisDirection);
     }
   }
 }
+
+
 
 ///切记 继承ScrollPhysics  必须重写applyTo，，在NeverScrollableScrollPhysics类里面复制就可以
 ///此类用来控制IOS过度滑动出现弹簧效果

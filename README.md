@@ -5,7 +5,7 @@
 Add this to your package's pubspec.yaml file:
 
 	dependencies:
-	  pulltorefresh_flutter: "^0.1.1"
+	  pulltorefresh_flutter: "^0.1.3"
 	  
 If you want to use the default refresh image of this project (the rotated image), please download https://raw.githubusercontent.com/baoolong/PullToRefresh_Flutter/master/images/refresh.png to your images folder, and Pubspec.yaml is declared as follows.
 
@@ -20,7 +20,7 @@ Add it to your dart file:
 #### Example
    [https://github.com/baoolong/PullToRefresh_Flutter](https://github.com/baoolong/PullToRefresh_Flutter)
 
-本功能只实现基本的上下拉刷新，可在这个基础上进行改进、优化、封装，如果只是使用，可在build方法中修改ListView控件和List数组的泛型,已经兼容IOS
+本功能只实现基本的上下拉刷新，可在这个基础上进行改进、优化、封装，如果只是使用，可在build方法中修改ListView控件和List数组的泛型,已经兼容IOS，已经支持对下拉和上拉的分别控制
 
 <img width="38%" height="38%" src="https://raw.githubusercontent.com/baoolong/PullToRefresh/master/demonstrationgif/20180813170926.gif"/>
 
@@ -82,7 +82,7 @@ ListView吸顶控件，本控件只适用于ListView的Item高度固定的布局
 Add this to your package's pubspec.yaml file:
 
 	dependencies:
-	  adsorptionview_flutter: ^0.1.1
+	  adsorptionview_flutter: ^0.1.2
 	  
 Add it to your dart file:
 
