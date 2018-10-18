@@ -82,7 +82,7 @@ ListView吸顶控件，本控件只适用于ListView的Item高度固定的布局
 Add this to your package's pubspec.yaml file:
 
 	dependencies:
-	  adsorptionview_flutter: ^0.1.1
+	  adsorptionview_flutter: ^0.1.2
 	  
 Add it to your dart file:
 
