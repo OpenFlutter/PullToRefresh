@@ -47,7 +47,7 @@ class AdsorptionViewState<T extends AdsorptionData> extends State<AdsorptionView
   T headerStr;
   GlobalKey key=new GlobalKey();
   double beforeScroll=0.0;
-  ScrollPhysics scrollPhysics=new ClampingScrollPhysics()
+  ScrollPhysics scrollPhysics=new ClampingScrollPhysics();
 
   @override
   void initState() {
