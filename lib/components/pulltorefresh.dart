@@ -16,8 +16,19 @@ enum  RefreshBoxDirectionStatus {
 
 
 enum  AnimationStates {
-  //  上拉加载的状态 分别为 闲置 上拉  下拉
-  DragAndRefreshNotEnabled, DragAndRefreshEnabled,ReboundToBoxHeight,StartLoadData,LoadDataEndAndBoxDisappear,RefreshBoxIdle
+  ///RefreshBox高度没有达到50，上下拉刷新不可用（此状态下RefreshBox会自动弹回去）；RefreshBox height not reached 50，the function of load data is not available（In this state RefreshBox Will automatically bounce back）
+  //DragAndRefreshNotEnabled,
+  ///RefreshBox高度达到50,上下拉刷新可用;RefreshBox height reached 50，the function of load data is  available
+  DragAndRefreshEnabled,
+  ///抬起手指后。RefreshBox 弹回到50的高度；After lifting your finger，RefreshBox bounce back to the height of 50，
+  //ReboundToBoxHeight,
+  ///开始加载数据时；When loading data starts
+  StartLoadData,
+  ///加载完数据时；RefreshBox会留在屏幕2秒，并不马上消失，After loading the data，RefreshBox will stay on the screen for 2 seconds, not disappearing immediately
+  LoadDataEnd,
+  ///开始消失时；RefreshBox begins to disappear
+  //BoxStartDisappear,
+  RefreshBoxIdle
 }
 
 class PullAndPush extends StatefulWidget{
@@ -268,32 +279,31 @@ class PullAndPushState extends State<PullAndPush> with TickerProviderStateMixin{
 
 
   void _refreshStart (RefreshBoxDirectionStatus refreshBoxDirectionStatus) async{
-
+    _chenckStateAndCallback(AnimationStates.StartLoadData,refreshBoxDirectionStatus);
     if(refreshBoxDirectionStatus==RefreshBoxDirectionStatus.PULL&&widget.headerRefreshBox==null&&widget.isPullEnable){
       //开始加载等待的动画
       animationControllerWait.forward();
     }else if(refreshBoxDirectionStatus==RefreshBoxDirectionStatus.PUSH&&widget.footerRefreshBox==null&&widget.isPushEnable){
       //开始加载等待的动画
       animationControllerWait.forward();
-    }else{
-      _chenckStateAndCallback(AnimationStates.StartLoadData,refreshBoxDirectionStatus);
     }
+
 
     //这里我们开始加载数据 数据加载完成后，将新数据处理并开始加载完成后的处理
     await widget.loadData(topItemHeight>bottomItemHeight);
     if (!mounted) return;
 
 
-    if(refreshBoxDirectionStatus==RefreshBoxDirectionStatus.PULL&&widget.headerRefreshBox==null&&widget.isPullEnable){
+    if(animationControllerWait.isAnimating){
       //结束加载等待的动画
       animationControllerWait.stop();
-    }else if(refreshBoxDirectionStatus==RefreshBoxDirectionStatus.PUSH&&widget.footerRefreshBox==null&&widget.isPushEnable){
-      //结束加载等待的动画
-      animationControllerWait.stop();
-    }else{
-      _chenckStateAndCallback(AnimationStates.LoadDataEndAndBoxDisappear,refreshBoxDirectionStatus);
     }
+    _chenckStateAndCallback(AnimationStates.LoadDataEnd,refreshBoxDirectionStatus);
 
+
+    await Future.delayed(new Duration(seconds: 2));
+
+    //_chenckStateAndCallback(AnimationStates.BoxStartDisappear,refreshBoxDirectionStatus);
     //开始将加载（刷新）布局缩回去的动画
     animationController.forward();
 
@@ -411,16 +421,16 @@ class PullAndPushState extends State<PullAndPush> with TickerProviderStateMixin{
       }
       //启动动画后，ListView不可滑动
       widget.scrollPhysicsChanged(new NeverScrollableScrollPhysics());
-      if(topItemHeight>_refreshHeight){
-        _chenckStateAndCallback(AnimationStates.ReboundToBoxHeight,RefreshBoxDirectionStatus.PULL);
-      //当Item的数量不能铺满全屏时  上拉加载时，手指来回滑动，会引起下拉布局的出现，所以这里要判断下bottomItemHeight<0.5
-      }else if(topItemHeight<_refreshHeight&&topItemHeight>0.0&&bottomItemHeight<0.5){
-        _chenckStateAndCallback(AnimationStates.LoadDataEndAndBoxDisappear,RefreshBoxDirectionStatus.PULL);
-      }else if(bottomItemHeight>_refreshHeight){
-        _chenckStateAndCallback(AnimationStates.ReboundToBoxHeight,RefreshBoxDirectionStatus.PUSH);
-      }else if(bottomItemHeight<_refreshHeight&&bottomItemHeight>0){
-        _chenckStateAndCallback(AnimationStates.LoadDataEndAndBoxDisappear,RefreshBoxDirectionStatus.PUSH);
-      }
+//      if(topItemHeight>_refreshHeight){
+//        _chenckStateAndCallback(AnimationStates.ReboundToBoxHeight,RefreshBoxDirectionStatus.PULL);
+//      //当Item的数量不能铺满全屏时  上拉加载时，手指来回滑动，会引起下拉布局的出现，所以这里要判断下bottomItemHeight<0.5
+//      }else if(topItemHeight<_refreshHeight&&topItemHeight>0.0&&bottomItemHeight<0.5){
+//        _chenckStateAndCallback(AnimationStates.BoxStartDisappear,RefreshBoxDirectionStatus.PULL);
+//      }else if(bottomItemHeight>_refreshHeight){
+//        _chenckStateAndCallback(AnimationStates.ReboundToBoxHeight,RefreshBoxDirectionStatus.PUSH);
+//      }else if(bottomItemHeight<_refreshHeight&&bottomItemHeight>0){
+//        _chenckStateAndCallback(AnimationStates.BoxStartDisappear,RefreshBoxDirectionStatus.PUSH);
+//      }
       animationController.forward();
     }
   }
@@ -458,7 +468,7 @@ class PullAndPushState extends State<PullAndPush> with TickerProviderStateMixin{
         }else{
           if(topItemHeight>150.0){
             widget.scrollPhysicsChanged(new NeverScrollableScrollPhysics());
-            _chenckStateAndCallback(AnimationStates.ReboundToBoxHeight,RefreshBoxDirectionStatus.PULL);
+            //_chenckStateAndCallback(AnimationStates.ReboundToBoxHeight,RefreshBoxDirectionStatus.PULL);
             animationController.forward();
           }else if(topItemHeight>90.0){
             topItemHeight=notification.dragDetails.delta.dy/6+topItemHeight;
@@ -466,7 +476,7 @@ class PullAndPushState extends State<PullAndPush> with TickerProviderStateMixin{
             _chenckStateAndCallback(AnimationStates.DragAndRefreshEnabled,RefreshBoxDirectionStatus.PULL);
             topItemHeight=notification.dragDetails.delta.dy/4+topItemHeight;
           }else {
-            _chenckStateAndCallback(AnimationStates.DragAndRefreshNotEnabled,RefreshBoxDirectionStatus.PULL);
+            //_chenckStateAndCallback(AnimationStates.DragAndRefreshNotEnabled,RefreshBoxDirectionStatus.PULL);
             topItemHeight=notification.dragDetails.delta.dy/2+topItemHeight;
           }
         }
@@ -489,7 +499,7 @@ class PullAndPushState extends State<PullAndPush> with TickerProviderStateMixin{
             }
             isPulling=true;
             widget.scrollPhysicsChanged(new NeverScrollableScrollPhysics());
-            _chenckStateAndCallback(AnimationStates.ReboundToBoxHeight,RefreshBoxDirectionStatus.PUSH);
+            //_chenckStateAndCallback(AnimationStates.ReboundToBoxHeight,RefreshBoxDirectionStatus.PUSH);
             animationController.forward();
           }else if(bottomItemHeight>60.0){
             bottomItemHeight=-notification.dragDetails.delta.dy/6+bottomItemHeight;
@@ -497,7 +507,7 @@ class PullAndPushState extends State<PullAndPush> with TickerProviderStateMixin{
             _chenckStateAndCallback(AnimationStates.DragAndRefreshEnabled,RefreshBoxDirectionStatus.PUSH);
             bottomItemHeight=-notification.dragDetails.delta.dy/4+bottomItemHeight;
           }else {
-            _chenckStateAndCallback(AnimationStates.DragAndRefreshNotEnabled,RefreshBoxDirectionStatus.PUSH);
+            //_chenckStateAndCallback(AnimationStates.DragAndRefreshNotEnabled,RefreshBoxDirectionStatus.PUSH);
             bottomItemHeight=-notification.dragDetails.delta.dy/2+bottomItemHeight;
           }
         }

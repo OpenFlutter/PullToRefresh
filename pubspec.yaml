@@ -41,6 +41,7 @@ flutter:
     - images/chaonan4.jpeg
     - images/refresh.png
     - images/icon_arrow.png
+    - images/icon_cry.png
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.io/assets-and-images/#resolution-aware.
