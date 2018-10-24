@@ -34,6 +34,7 @@ class PullAndPushTestState extends State<PullAndPushTest> with TickerProviderSta
   AnimationController customBoxWaitAnimation;
   double rotationAngle=0.0;
   String customHeaderTipText="快尼玛给老子松手！";
+  String defaultRefreshBoxTipText="快尼玛给老子松手！";
 
 
   @override
@@ -53,36 +54,36 @@ class PullAndPushTestState extends State<PullAndPushTest> with TickerProviderSta
         //如果你headerRefreshBox和footerRefreshBox全都自定义了，则default**系列的属性均无效，假如有一个RefreshBox是用默认的（在该RefreshBox Enable的情况下）则default**系列的属性均有效
         //If your headerRefreshBox and footerRefreshBox are all customizable，then the default** attributes of the series are invalid，
         // If there is a RefreshBox is the default（In the case of the RefreshBox Enable）then the default** attributes of the series are valid
-        defaultRefreshBoxTipText: "快尼玛给老子松手！",
+        defaultRefreshBoxTipText: defaultRefreshBoxTipText,
         headerRefreshBox: new Container(
-          color: Colors.black54,
+          color: Colors.grey,
           child:  new Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: <Widget>[
               new Align(
                 alignment: Alignment.centerLeft,
-                  child: new Transform(
-                    origin: new Offset(45.0/2, 45.0/2),
-                    transform: Matrix4.rotationX(rotationAngle),
-                    child: new RotationTransition( //布局中加载时动画的weight
-                      child: new ClipRect(
-                        child: new Image.asset(
-                          customRefreshBoxIconPath,
-                          height: 45.0,
-                          width: 45.0,
-                        ),
+                child: new Transform(
+                  origin: new Offset(45.0/2, 45.0/2),
+                  transform: Matrix4.rotationX(rotationAngle),
+                  child: new RotationTransition( //布局中加载时动画的weight
+                    child: new ClipRect(
+                      child: new Image.asset(
+                        customRefreshBoxIconPath,
+                        height: 45.0,
+                        width: 45.0,
                       ),
-                      turns: new Tween(
-                          begin: 100.0,
-                          end: 0.0
-                      )
-                          .animate(customBoxWaitAnimation)
-                        ..addStatusListener((animationStatus) {
-                          if (animationStatus == AnimationStatus.completed) {
+                    ),
+                    turns: new Tween(
+                      begin: 100.0,
+                      end: 0.0
+                    )
+                    .animate(customBoxWaitAnimation)
+                      ..addStatusListener((animationStatus) {
+                        if (animationStatus == AnimationStatus.completed) {
                             customBoxWaitAnimation.repeat();
-                          }
                         }
-                      ),
+                      }
+                    ),
                   ),
                 ),
               ),
@@ -117,21 +118,25 @@ class PullAndPushTestState extends State<PullAndPushTest> with TickerProviderSta
               customBoxWaitAnimation.forward();
               break;
 
-            //加载完数据时；RefreshBox会留在屏幕2秒，并不马上消失，After loading the data，RefreshBox will stay on the screen for 2 seconds, not disappearing immediately
+            //加载完数据时；RefreshBox会留在屏幕2秒，并不马上消失，这里可以提示用户加载成功或者失败
+            // After loading the data，RefreshBox will stay on the screen for 2 seconds, not disappearing immediately，Here you can prompt the user to load successfully or fail.
             case AnimationStates.LoadDataEnd:
               customBoxWaitAnimation.reset();
               setState(() {
-                rotationAngle=0.0;
-                customRefreshBoxIconPath="images/icon_cry.png";
-                customHeaderTipText="加载失败！请重试";
+                rotationAngle = 0.0;
+                if(refreshBoxDirectionStatus==RefreshBoxDirectionStatus.PULL) {
+                  customRefreshBoxIconPath = "images/icon_cry.png";
+                  customHeaderTipText = "加载失败！请重试";
+                }else if(refreshBoxDirectionStatus==RefreshBoxDirectionStatus.PUSH){
+                  defaultRefreshBoxTipText="可提示用户加载成功Or失败";
+                }
               });
               break;
 
             //RefreshBox已经消失，并且闲置；RefreshBox has disappeared and is idle
             case AnimationStates.RefreshBoxIdle:
-              print("------");
               setState(() {
-                customHeaderTipText="快尼玛给老子松手！";
+                defaultRefreshBoxTipText=customHeaderTipText="快尼玛给老子松手！";
                 customRefreshBoxIconPath="images/icon_arrow.png";
               });
               break;
@@ -144,7 +149,6 @@ class PullAndPushTestState extends State<PullAndPushTest> with TickerProviderSta
           physics: scrollPhysics,
           itemBuilder: (BuildContext context,int index){
             return new Container(
-              color: Colors.black54,
               height: 35.0,
               child: new Center(
                 child: new Text(strs[index],style: new TextStyle(fontSize: 18.0),),
