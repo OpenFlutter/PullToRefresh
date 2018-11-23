@@ -52,27 +52,80 @@ class ListState extends State<ListViewWidgets>{
                   return new AnimationWidget();
                 }));
               }else if(index==1){
-                Navigator.of(context).push(new MaterialPageRoute(builder: (_) {
-                  return new MarqueeWidgetDemo();
-                }));
+                Navigator.of(context).push(new PageRouteBuilder(
+                  pageBuilder: (BuildContext context, Animation<double> animation, Animation<double> secondaryAnimation) {
+                    return new MarqueeWidgetDemo();
+                  },
+                  transitionsBuilder: (BuildContext context, Animation<double> animation, Animation<double> secondaryAnimation, Widget child) {
+                    return AnimatedBuilder (
+                      child: child,
+                      animation: animation,
+                      builder: (BuildContext context, Widget child) {
+                            return new Transform(
+                              alignment: Alignment.center,
+                              transform: Matrix4.rotationZ(animation.value*1.0-1.0)..scale(animation.value*0.5+0.5,animation.value*0.5+0.5,animation.value*0.5+0.5),
+                              child:new Opacity(
+                                child: child,
+                                opacity: animation.value*0.7+0.3,
+                              ),
+                            );
+                          }
+                        );
+                      },
+                  ),
+                );
               }else if(index==2){
-                Navigator.of(context).push(new MaterialPageRoute(builder: (_) {
-                  return new Timepicker();
-                }));
+                Navigator.of(context).push(new PageRouteBuilder(
+                  pageBuilder: (BuildContext context, Animation<double> animation, Animation<double> secondaryAnimation) {
+                    return new Timepicker();
+                  },
+                  transitionsBuilder: (BuildContext context, Animation<double> animation, Animation<double> secondaryAnimation, Widget child) {
+                    return RotationTransition (
+                      turns: new Tween<double>(
+                        begin: -0.5,
+                        end: 0.0,
+                      ).animate(animation),
+                      child: child,
+                    );
+                  },
+                ));
               }else if(index==3){
-                Navigator.of(context).push(new MaterialPageRoute(builder: (_) {
-                  return new PullAndPushTest();
-                }));
+                Navigator.of(context).push(new PageRouteBuilder(
+                  pageBuilder: (BuildContext context, Animation<double> animation, Animation<double> secondaryAnimation) {
+                    return new PullAndPushTest();
+                  },
+                  transitionsBuilder: (BuildContext context, Animation<double> animation, Animation<double> secondaryAnimation, Widget child) {
+                    return SlideTransition(
+                      position: new Tween<Offset>(
+                        begin: const Offset(-1.0, 0.0),
+                        end: Offset.zero,
+                      ).animate(animation),
+                      child: child,
+                    );
+                  },
+                ));
               }else if(index==4){
-                Navigator.of(context).push(new MaterialPageRoute(builder: (_) {
-                  return new DragAbleGridViewDemo();
-                }));
+                Navigator.of(context).push(new PageRouteBuilder(
+                  pageBuilder: (BuildContext context, Animation<double> animation, Animation<double> secondaryAnimation) {
+                    return new DragAbleGridViewDemo();
+                  },
+                  transitionsBuilder: (BuildContext context, Animation<double> animation, Animation<double> secondaryAnimation, Widget child) {
+                    return ScaleTransition(
+                      scale: new Tween<double>(
+                        begin: 0.3,
+                        end: 1.0,
+                      ).animate(animation),
+                      child: child,
+                    );
+                  },
+                ));
               }else if(index==5){
                 Navigator.of(context).push(new MaterialPageRoute(builder: (_) {
                   return new AdsorptionViewDemo();
                 }));
-              }
+              }else if(index==6){
 
+              }
             },
             child:new Card(
               color: widget.constantList[index].isTapDown?Color(0xFFF4CB28):null,

@@ -74,12 +74,12 @@ class PullAndPush extends StatefulWidget{
     );
 
   @override
-  State<StatefulWidget> createState() {
+  PullAndPushState createState() {
     return new PullAndPushState();
   }
 }
 
-class PullAndPushState extends State<PullAndPush> with TickerProviderStateMixin{
+class PullAndPushState extends State<PullAndPush> with TickerProviderStateMixin<PullAndPush>{
 
   double topItemHeight=0.0;
   double bottomItemHeight=0.0;
@@ -426,14 +426,14 @@ class PullAndPushState extends State<PullAndPush> with TickerProviderStateMixin{
 
   void _handleUserScrollNotification(UserScrollNotification notification){
     if(bottomItemHeight>0.0&&notification.direction==ScrollDirection.forward){
-    //底部加载布局出现反向滑动时（由上向下），将scrollPhysics置为RefreshScrollPhysics，只要有2个原因。1 减缓滑回去的速度，2 防止手指快速滑动时出现惯性滑动
-    widget.scrollPhysicsChanged(new RefreshScrollPhysics());
+      //底部加载布局出现反向滑动时（由上向下），将scrollPhysics置为RefreshScrollPhysics，只要有2个原因。1 减缓滑回去的速度，2 防止手指快速滑动时出现惯性滑动
+      widget.scrollPhysicsChanged(new RefreshScrollPhysics());
     }else if(topItemHeight>0.0&&notification.direction==ScrollDirection.reverse){
-    //头部刷新布局出现反向滑动时（由下向上）
-    widget.scrollPhysicsChanged(new RefreshScrollPhysics());
+      //头部刷新布局出现反向滑动时（由下向上）
+      widget.scrollPhysicsChanged(new RefreshScrollPhysics());
     }else if(bottomItemHeight>0.0&&notification.direction==ScrollDirection.reverse){
-    //反向再反向（恢复正向拖动）
-    widget.scrollPhysicsChanged(new RefreshAlwaysScrollPhysics());
+      //反向再反向（恢复正向拖动）
+      widget.scrollPhysicsChanged(new RefreshAlwaysScrollPhysics());
 
     }
   }
@@ -513,6 +513,7 @@ class PullAndPushState extends State<PullAndPush> with TickerProviderStateMixin{
 
 
 ///切记 继承ScrollPhysics  必须重写applyTo，，在NeverScrollableScrollPhysics类里面复制就可以
+///出现反向滑动时用此ScrollPhysics
 class RefreshScrollPhysics extends ScrollPhysics {
   const RefreshScrollPhysics({ ScrollPhysics parent }) : super(parent: parent);
 

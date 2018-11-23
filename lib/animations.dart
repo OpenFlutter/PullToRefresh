@@ -1,5 +1,9 @@
+import 'dart:ui';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/animation.dart';
+
+import 'package:flutter/rendering.dart';
 
 class AnimationWidget extends StatefulWidget{
   @override
@@ -74,7 +78,9 @@ class AnimationState extends State<AnimationWidget> with SingleTickerProviderSta
     super.didChangeDependencies();
     screenWidth=MediaQuery.of(context).size.width;
     magins=(screenWidth-60-imageWidth*2.5)/2.0;
+    print("magins is $magins");
   }
+
 
 
   /*  第一排的magn不用动 宽高不用动
