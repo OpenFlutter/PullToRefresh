@@ -2,9 +2,9 @@ import 'dart:ui';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
-import './pageviews/firstPage.dart';
-import './pageviews/secondPage.dart';
-import './pageviews/thirdPage.dart';
+import 'package:flutterapp/ui/firstpage/firstPage.dart';
+import 'package:flutterapp/ui/secondpage/secondPage.dart';
+import 'package:flutterapp/ui/thirdpage/thirdPage.dart';
 import 'dart:ui' as ui show Image;
 
 void main() => runApp(

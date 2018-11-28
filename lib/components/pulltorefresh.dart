@@ -79,7 +79,7 @@ class PullAndPush extends StatefulWidget{
   }
 }
 
-class PullAndPushState extends State<PullAndPush> with TickerProviderStateMixin<PullAndPush>{
+class PullAndPushState extends State<PullAndPush> with TickerProviderStateMixin{
 
   double topItemHeight=0.0;
   double bottomItemHeight=0.0;
@@ -369,12 +369,17 @@ class PullAndPushState extends State<PullAndPush> with TickerProviderStateMixin<
 
 
   void _handleScrollUpdateNotification(ScrollUpdateNotification notification){
+    //此处同上
+    if(notification.dragDetails==null){
+      return;
+    }
     //Header刷新的布局可见时，且当手指反方向拖动（由下向上），notification 为 ScrollUpdateNotification，这个时候让头部刷新布局的高度+delta.dy(此时dy为负数)
     // 来缩小头部刷新布局的高度，当完全看不见时，将scrollPhysics设置为RefreshAlwaysScrollPhysics，来保持ListView的正常滑动
     if(topItemHeight>0.0){
       setState(() {
-        //如果头部的布局高度<0时，将topItemHeight=0；并恢复ListView的滑动
-        if(topItemHeight+notification.dragDetails.delta.dy/2<0.0){
+        //  如果头部的布局高度<0时，将topItemHeight=0；并恢复ListView的滑动
+        if(topItemHeight+notification.dragDetails.delta.dy/2<=0.0){
+          _chenckStateAndCallback(AnimationStates.RefreshBoxIdle,RefreshBoxDirectionStatus.IDLE);
           topItemHeight=0.0;
           widget.scrollPhysicsChanged(new RefreshAlwaysScrollPhysics());
         }else {
@@ -392,7 +397,8 @@ class PullAndPushState extends State<PullAndPush> with TickerProviderStateMixin<
       }
       setState(() {
         //如果底部的布局高度<0时，bottomItemHeight=0；并恢复ListView的滑动
-        if(bottomItemHeight-notification.dragDetails.delta.dy/2<0.0) {
+        if(bottomItemHeight-notification.dragDetails.delta.dy/2<=0.0) {
+          _chenckStateAndCallback(AnimationStates.RefreshBoxIdle,RefreshBoxDirectionStatus.IDLE);
           bottomItemHeight=0.0;
           widget.scrollPhysicsChanged(new RefreshAlwaysScrollPhysics());
         }else{
@@ -442,13 +448,17 @@ class PullAndPushState extends State<PullAndPush> with TickerProviderStateMixin<
 
   void _handleOverscrollNotification(OverscrollNotification notification){
     //OverscrollNotification 和 metrics.atEdge 说明正在下拉或者 上拉
+    //此处同上
+    if(notification.dragDetails==null){
+      return;
+    }
 
     //如果notification.overscroll<0.0 说明是在下拉刷新，这里根据拉的距离设定高度的增加范围-->小于50时  是拖动速度的1/2，高度在50-90时 是
     //拖动速度的1/4  .........若果超过150，结束拖动，自动开始刷新，拖过刷新布局高度小于0，恢复ListView的正常拖动
     //当Item的数量不能铺满全屏时  上拉加载会引起下拉布局的出现，所以这里要判断下bottomItemHeight<0.5
     if(notification.overscroll<0.0&&bottomItemHeight<0.5&&widget.isPullEnable){
       setState(() {
-        if(notification.dragDetails.delta.dy/2+topItemHeight<0.0){
+        if(notification.dragDetails.delta.dy/2+topItemHeight<=0.0){
           //Refresh回弹完毕，恢复正常ListView的滑动状态
           _chenckStateAndCallback(AnimationStates.RefreshBoxIdle,RefreshBoxDirectionStatus.IDLE);
           topItemHeight=0.0;
@@ -468,12 +478,9 @@ class PullAndPushState extends State<PullAndPush> with TickerProviderStateMixin<
         }
       });
     }else if(topItemHeight<0.5&&widget.isPushEnable){
-      //此处同上
-      if(notification.dragDetails==null){
-        return;
-      }
+
       setState(() {
-        if(-notification.dragDetails.delta.dy/2+bottomItemHeight<0.0){
+        if(-notification.dragDetails.delta.dy/2+bottomItemHeight<=0.0){
           //Refresh回弹完毕，恢复正常ListView的滑动状态
           _chenckStateAndCallback(AnimationStates.RefreshBoxIdle,RefreshBoxDirectionStatus.IDLE);
           bottomItemHeight=0.0;
