@@ -107,6 +107,7 @@ class PullAndPushTestState extends State<PullAndPushTest> with TickerProviderSta
                     customRefreshBoxIconPath,
                     height: 45.0,
                     width: 45.0,
+                    fit:BoxFit.cover,
                   ),
                   turns: new Tween(
                       begin: 100.0,

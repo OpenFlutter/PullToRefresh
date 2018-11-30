@@ -253,7 +253,11 @@ class PullAndPushState extends State<PullAndPush> with TickerProviderStateMixin{
               alignment: Alignment.centerLeft,
               child: new RotationTransition( //布局中加载时动画的weight
                 child: new Image.asset(
-                  widget.defaultRefreshBoxRefreshIconPath, height: 45.0, width: 45.0,),
+                  widget.defaultRefreshBoxRefreshIconPath,
+                    height: 45.0,
+                    width: 45.0,
+                    //fit:BoxFit.cover
+                ),
                 turns: new Tween(begin: 100.0, end: 0.0).animate(
                     animationControllerWait)
                   ..addStatusListener((animationStatus) {
@@ -369,7 +373,7 @@ class PullAndPushState extends State<PullAndPush> with TickerProviderStateMixin{
 
 
   void _handleScrollUpdateNotification(ScrollUpdateNotification notification){
-    //此处同上
+    //当上拉加载时，不知道什么原因，dragDetails可能会为空，导致抛出异常，会发生很明显的卡顿，所以这里必须判空
     if(notification.dragDetails==null){
       return;
     }
@@ -391,10 +395,6 @@ class PullAndPushState extends State<PullAndPush> with TickerProviderStateMixin{
       //底部的布局可见时 ，且手指反方向拖动（由上向下），这时notification 为 ScrollUpdateNotification，这个时候让底部加载布局的高度-delta.dy(此时dy为正数数)
       //来缩小底部加载布局的高度，当完全看不见时，将scrollPhysics设置为RefreshAlwaysScrollPhysics，来保持ListView的正常滑动
 
-      //当上拉加载时，不知道什么原因，dragDetails可能会为空，导致抛出异常，会发生很明显的卡顿，所以这里必须判空
-      if(notification.dragDetails==null){
-        return ;
-      }
       setState(() {
         //如果底部的布局高度<0时，bottomItemHeight=0；并恢复ListView的滑动
         if(bottomItemHeight-notification.dragDetails.delta.dy/2<=0.0) {
@@ -414,7 +414,7 @@ class PullAndPushState extends State<PullAndPush> with TickerProviderStateMixin{
 
   void _handleScrollEndNotification(){
     //如果滑动结束后（手指抬起来后），判断是否需要启动加载或者刷新的动画
-    if((topItemHeight>0||bottomItemHeight>0)){
+    if(topItemHeight>0||bottomItemHeight>0){
       if(isPulling){
         return ;
       }
@@ -533,6 +533,39 @@ class RefreshScrollPhysics extends ScrollPhysics {
   bool shouldAcceptUserOffset(ScrollMetrics position) {
     return true;
   }
+
+
+  ///防止ios设备上出现弹簧效果
+  @override
+  double applyBoundaryConditions(ScrollMetrics position, double value) {
+    assert(() {
+      if (value == position.pixels) {
+        throw FlutterError(
+            '$runtimeType.applyBoundaryConditions() was called redundantly.\n'
+                'The proposed new position, $value, is exactly equal to the current position of the '
+                'given ${position.runtimeType}, ${position.pixels}.\n'
+                'The applyBoundaryConditions method should only be called when the value is '
+                'going to actually change the pixels, otherwise it is redundant.\n'
+                'The physics object in question was:\n'
+                '  $this\n'
+                'The position object in question was:\n'
+                '  $position\n'
+        );
+      }
+      return true;
+    }());
+    if (value < position.pixels && position.pixels <= position.minScrollExtent) // underscroll
+      return value - position.pixels;
+    if (position.maxScrollExtent <= position.pixels && position.pixels < value) // overscroll
+      return value - position.pixels;
+    if (value < position.minScrollExtent && position.minScrollExtent < position.pixels) // hit top edge
+      return value - position.minScrollExtent;
+    if (position.pixels < position.maxScrollExtent && position.maxScrollExtent < value) // hit bottom edge
+      return value - position.maxScrollExtent;
+    return 0.0;
+  }
+
+
 
   //重写这个方法为了减缓ListView滑动速度
   @override

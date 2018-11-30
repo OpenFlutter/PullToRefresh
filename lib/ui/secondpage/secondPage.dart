@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutterapp/bin/appinfobin.dart';
+import 'package:flutterapp/ui/secondpage/blendmode.dart';
+import 'package:flutterapp/ui/secondpage/dashboard.dart';
 import 'package:flutterapp/ui/secondpage/loginanimdemo.dart';
 import 'package:flutterapp/ui/secondpage/timepicker.dart';
 
@@ -41,6 +43,8 @@ class ListViewWidgets extends StatefulWidget{
   var constantList =  [
     new AppInfoBin("IOSPicker", "2018-07-16 16:16", "自定义仿IOS时间选择器",false),
     new AppInfoBin("LoginAnimation", "2018-11-26 10:05", "登陆按钮的动画",false),
+    new AppInfoBin("BlendMode", "2018-11-28 10:52", "BlendMode测试",false),
+    new AppInfoBin("DashBoard", "2018-11-29 14:34", "汽车仪表盘模拟",false),
   ];
 
   @override
@@ -90,6 +94,14 @@ class ListState extends State<ListViewWidgets>{
               }else if(index==1){
                 Navigator.of(context).push(new MaterialPageRoute(builder: (_) {
                   return new LoginAnimationDemo();
+                }));
+              }else if(index==2){
+                Navigator.of(context).push(new MaterialPageRoute(builder: (_) {
+                  return new BlendModes();
+                }));
+              }else if(index==3){
+                Navigator.of(context).push(new MaterialPageRoute(builder: (_) {
+                  return new DashBoard();
                 }));
               }
             },

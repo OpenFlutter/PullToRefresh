@@ -5,7 +5,7 @@
 Add this to your package's pubspec.yaml file:
 
 	dependencies:
-	  pulltorefresh_flutter: "^0.1.7"
+	  pulltorefresh_flutter: "^0.1.8"
 	  
 If you want to use the default refresh image of this project (the rotated image), please download https://raw.githubusercontent.com/baoolong/PullToRefresh_Flutter/master/images/refresh.png to your images folder, and Pubspec.yaml is declared as follows.
 
