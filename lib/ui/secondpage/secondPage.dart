@@ -103,6 +103,9 @@ class ListState extends State<ListViewWidgets>{
                 Navigator.of(context).push(new MaterialPageRoute(builder: (_) {
                   return new DashBoard();
                 }));
+              }else if(index==4){
+                Navigator.of(context).push(new MaterialPageRoute(builder: (_) {
+                }));
               }
             },
             child:new Card(

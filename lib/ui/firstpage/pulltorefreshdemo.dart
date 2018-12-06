@@ -35,6 +35,8 @@ class PullAndPushTestState extends State<PullAndPushTest> with TickerProviderSta
   int rotationAngle=0;
   String customHeaderTipText="快尼玛给老子松手！";
   String defaultRefreshBoxTipText="快尼玛给老子松手！";
+  ///button等其他方式，通过方法调用触发下拉刷新
+  TriggerPullController triggerPullController=new TriggerPullController();
 
 
   @override
@@ -42,51 +44,55 @@ class PullAndPushTestState extends State<PullAndPushTest> with TickerProviderSta
     super.initState();
     //这个是刷新时控件旋转的动画，用来使刷新的Icon动起来
     customBoxWaitAnimation=new AnimationController(duration: const Duration(milliseconds: 1000*100), vsync: this);
+    //第一次layout后会被调用
+    //WidgetsBinding.instance.addPostFrameCallback((context){
+    //  triggerPullController.triggerPull();
+    //});
   }
-
 
 
   @override
   Widget build(BuildContext context) {
     return new Scaffold(
-      appBar: new AppBar(
-        title: new Text("上下拉刷新"),
-      ),
-      body: new PullAndPush(
-        //如果你headerRefreshBox和footerRefreshBox全都自定义了，则default**系列的属性均无效，假如有一个RefreshBox是用默认的（在该RefreshBox Enable的情况下）则default**系列的属性均有效
-        //If your headerRefreshBox and footerRefreshBox are all customizable，then the default** attributes of the series are invalid，
-        // If there is a RefreshBox is the default（In the case of the RefreshBox Enable）then the default** attributes of the series are valid
-        defaultRefreshBoxTipText: defaultRefreshBoxTipText,
-        headerRefreshBox: _getCustomHeaderBox(),
-
-        //你也可以自定义底部的刷新栏；you can customize the bottom refresh box
-        animationStateChangedCallback:(AnimationStates animationStates,RefreshBoxDirectionStatus refreshBoxDirectionStatus){
-          _handleStateCallback( animationStates, refreshBoxDirectionStatus);
-        },
-        listView: new ListView.builder(
-          //ListView的Item
-          itemCount: strs.length,//+2,
-          controller: controller,
-          physics: scrollPhysics,
-          itemBuilder: (BuildContext context,int index){
-            return new Container(
-              height: 35.0,
-              child: new Center(
-                child: new Text(strs[index],style: new TextStyle(fontSize: 18.0),),
-              ),
-            );
-          }
+        appBar: new AppBar(
+          title: new Text("上下拉刷新"),
         ),
-        loadData: (isPullDown) async{
-          await _loadData(isPullDown);
-        },
-        scrollPhysicsChanged: (ScrollPhysics physics) {
-          //这个不用改，照抄即可；This does not need to change，only copy it
-          setState(() {
-            scrollPhysics=physics;
-          });
-        },
-      )
+        body: new PullAndPush(
+          //如果你headerRefreshBox和footerRefreshBox全都自定义了，则default**系列的属性均无效，假如有一个RefreshBox是用默认的（在该RefreshBox Enable的情况下）则default**系列的属性均有效
+          //If your headerRefreshBox and footerRefreshBox are all customizable，then the default** attributes of the series are invalid，
+          // If there is a RefreshBox is the default（In the case of the RefreshBox Enable）then the default** attributes of the series are valid
+          defaultRefreshBoxTipText: defaultRefreshBoxTipText,
+          headerRefreshBox: _getCustomHeaderBox(),
+          triggerPullController:triggerPullController,
+
+          //你也可以自定义底部的刷新栏；you can customize the bottom refresh box
+          animationStateChangedCallback:(AnimationStates animationStates,RefreshBoxDirectionStatus refreshBoxDirectionStatus){
+            _handleStateCallback( animationStates, refreshBoxDirectionStatus);
+          },
+          listView: new ListView.builder(
+            //ListView的Item
+              itemCount: strs.length,//+2,
+              controller: controller,
+              physics: scrollPhysics,
+              itemBuilder: (BuildContext context,int index){
+                return  new Container(
+                  height: 35.0,
+                  child: new Center(
+                    child: new Text(strs[index],style: new TextStyle(fontSize: 18.0),),
+                  ),
+                );
+              }
+          ),
+          loadData: (isPullDown) async{
+            await _loadData(isPullDown);
+          },
+          scrollPhysicsChanged: (ScrollPhysics physics) {
+            //这个不用改，照抄即可；This does not need to change，only copy it
+            setState(() {
+              scrollPhysics=physics;
+            });
+          },
+        )
     );
   }
 
@@ -127,8 +133,7 @@ class PullAndPushTestState extends State<PullAndPushTest> with TickerProviderSta
             new Align(
               alignment: Alignment.centerRight,
               child:new ClipRect(
-//                child:new Text(customHeaderTipText,style: new TextStyle(fontSize: 18.0,color: Color(0xffe6e6e6)),),
-                child:new Text(customHeaderTipText,style: new TextStyle(fontSize: 18.0,color: Colors.blue),),
+                child:new Text(customHeaderTipText,style: new TextStyle(fontSize: 18.0,color: Color(0xffe6e6e6)),),
               ),
             ),
           ],

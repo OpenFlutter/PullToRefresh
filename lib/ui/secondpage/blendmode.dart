@@ -12,8 +12,8 @@ class BlendModes extends StatefulWidget{
 class BlendModeState extends State<BlendModes>{
 
   final double sizes=200.0;
-  BlendMode blendMode=BlendMode.dstATop;
-  String title="BlendMode.dstATop";
+  BlendMode blendMode=BlendMode.dstOver;
+  String title="BlendMode.dstOver";
 
   @override
   Widget build(BuildContext context) {

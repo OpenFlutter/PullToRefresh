@@ -14,27 +14,45 @@ class DashBoardState extends State<DashBoard>{
 
   final  platform = const MethodChannel('com.flutter.lgyw/sensor');
   bool _isGetPressure=false;
-  int pressures=0;
+  int pressures=0;final double wholeCirclesRadian=6.283185307179586;
+  ///虽然一个圆被分割为160份，但是只显示120份
+  final int tableCount=160;
+  Size dashBoardSize;
+  double tableSpace;
+
+  @override
+  void initState() {
+    super.initState();
+    dashBoardSize=new Size(300.0,300.0);
+    tableSpace=wholeCirclesRadian/tableCount;
+  }
 
   @override
   Widget build(BuildContext context) {
+    print("time is ${DateTime .now().millisecondsSinceEpoch}");
     return new Scaffold(
       appBar: new AppBar(
         title: new Text("汽车仪表盘"),
       ),
       body: new Center(
         child:GestureDetector(
-          onTapDown:(TapDownDetails tapDownDetails){
+          onPanDown:(DragDownDetails dragDownDetails){
             _isGetPressure=true;
             boostSpeed();
           },
-          onTapUp: (TapUpDetails tapUpDetails){
-            _isGetPressure=false;
-            bringDownSpeed();
+          onPanCancel: (){
+            handleEndEvent();
+          },
+          onPanEnd: (DragEndDetails dragEndDetails){
+            handleEndEvent();
           },
           child:new CustomPaint(
-            size: new Size(300.0,300.0),
-            painter: new DashBoardPainter(pressures),
+            size: dashBoardSize,
+            painter: new DashBoardIndicatorPainter(pressures,tableSpace),
+            child: new CustomPaint(
+              size: dashBoardSize,
+              painter: new DashBoardTablePainter(tableSpace),
+            ),
           )
         ),
       ),
@@ -54,6 +72,13 @@ class DashBoardState extends State<DashBoard>{
     }
   }
 
+
+  void handleEndEvent(){
+    _isGetPressure=false;
+    bringDownSpeed();
+  }
+
+
   void bringDownSpeed() async {
     while (!_isGetPressure){
       setState(() {
@@ -67,28 +92,18 @@ class DashBoardState extends State<DashBoard>{
       await Future.delayed(new Duration(milliseconds: 30));
     }
   }
-
 }
 
 
-class DashBoardPainter extends CustomPainter{
+class DashBoardIndicatorPainter extends CustomPainter{
 
-  //12+4
-  final double wholeCirclesRadian=6.283185307179586;
-  ///虽然一个圆被分割为160份，但是只显示120份
-  final int tableCount=160;
-  double tableSpace;
-  var speedTexts=["0","20","40","60","80","100","120","140","160","180","200","230","260"];
   final int speeds;
-
-  DashBoardPainter(this.speeds){
-    tableSpace=wholeCirclesRadian/tableCount;
-  }
+  double tableSpace;
+  DashBoardIndicatorPainter(this.speeds,this.tableSpace);
 
   @override
   void paint(Canvas canvas, Size size) {
     drawIndicator( canvas,  size);
-    drawTable( canvas,  size);
     String text;
     if(speeds<100){
       text=(speeds*2).toString()+"KM/H";
@@ -99,6 +114,12 @@ class DashBoardPainter extends CustomPainter{
     drawSpeendOnDashBoard(text,canvas, size);
   }
 
+  @override
+  bool shouldRepaint(CustomPainter oldDelegate) {
+    return true;
+  }
+
+  ///画实时得速度值到面板上
   void drawSpeendOnDashBoard(String text,Canvas canvas,Size size){
     double halfHeight=size.height/2;
     double halfWidth=size.width/2;
@@ -117,6 +138,8 @@ class DashBoardPainter extends CustomPainter{
   }
 
 
+
+  ///画速度指针
   void drawIndicator(Canvas canvas, Size size){
     double halfHeight=size.height/2;
     double halfWidth=size.width/2;
@@ -145,9 +168,27 @@ class DashBoardPainter extends CustomPainter{
 
     canvas.restore();
   }
+}
 
 
+
+
+class DashBoardTablePainter extends CustomPainter{
+
+  final double tableSpace;
+  var speedTexts=["0","20","40","60","80","100","120","140","160","180","200","230","260"];
+
+  DashBoardTablePainter(this.tableSpace);
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    drawTable( canvas,  size);
+  }
+
+
+  ///画仪表盘的表格
   void drawTable(Canvas canvas, Size size){
+    print("************");
     canvas.save();
     double halfWidth=size.width/2;
     double halfHeight=size.height/2;
@@ -200,6 +241,7 @@ class DashBoardPainter extends CustomPainter{
 
 
 
+  ///画仪表盘上的长线
   void drawLongLine(Canvas canvas,Paint paintMain,double halfHeight,String text){
     canvas.drawLine(new Offset(0.0, -halfHeight), new Offset(0.0,  -halfHeight+15), paintMain);
 
@@ -218,6 +260,7 @@ class DashBoardPainter extends CustomPainter{
   }
 
 
+  ///画短线
   void drawSmallLine(Canvas canvas,Paint paintOther,double halfHeight){
     canvas.drawLine(new Offset(0.0, -halfHeight), new Offset(0.0, -halfHeight+7), paintOther);
   }
@@ -225,7 +268,7 @@ class DashBoardPainter extends CustomPainter{
 
   @override
   bool shouldRepaint(CustomPainter oldDelegate) {
-    return true;
+    return false;
   }
 
 }

@@ -14,20 +14,20 @@ enum  RefreshBoxDirectionStatus {
   IDLE, PUSH, PULL
 }
 
+enum  RefreshBoxAnimationModel {
+  //  加载数据前缩回，加载数据后缩回，主动触发弹出
+  PUSH_BEFORE_LOAD_DATA, PULL_BEFORE_LOAD_DATA,PUSH_RECOVER_TO_NORMAL,PULL_RECOVER_TO_NORMAL,PULL_TRIGGER_BY_BUTTON
+}
+
 
 enum  AnimationStates {
-  ///RefreshBox高度没有达到50，上下拉刷新不可用（此状态下RefreshBox会自动弹回去）；RefreshBox height not reached 50，the function of load data is not available（In this state RefreshBox Will automatically bounce back）
-  //DragAndRefreshNotEnabled,
   ///RefreshBox高度达到50,上下拉刷新可用;RefreshBox height reached 50，the function of load data is  available
   DragAndRefreshEnabled,
-  ///抬起手指后。RefreshBox 弹回到50的高度；After lifting your finger，RefreshBox bounce back to the height of 50，
-  //ReboundToBoxHeight,
   ///开始加载数据时；When loading data starts
   StartLoadData,
   ///加载完数据时；RefreshBox会留在屏幕2秒，并不马上消失，After loading the data，RefreshBox will stay on the screen for 2 seconds, not disappearing immediately
   LoadDataEnd,
-  ///开始消失时；RefreshBox begins to disappear
-  //BoxStartDisappear,
+  ///空闲状态
   RefreshBoxIdle
 }
 
@@ -52,6 +52,7 @@ class PullAndPush extends StatefulWidget{
   final Widget footerRefreshBox;
 
   final AnimationStateChanged animationStateChangedCallback;
+  final TriggerPullController triggerPullController;
 
   PullAndPush({
     @required this.loadData,
@@ -68,6 +69,7 @@ class PullAndPush extends StatefulWidget{
     this.headerRefreshBox,
     this.footerRefreshBox,
     this.animationStateChangedCallback,
+    this.triggerPullController,
     @required this.listView}
     ):assert(
         listView!=null&&loadData!=null,
@@ -81,26 +83,33 @@ class PullAndPush extends StatefulWidget{
 
 class PullAndPushState extends State<PullAndPush> with TickerProviderStateMixin{
 
+  ///记录当前头部HeaderBox的高度
   double topItemHeight=0.0;
+  ///记录底部刷新boX的高度
   double bottomItemHeight=0.0;
 
   Animation<double> animation;
   AnimationController animationController;
-  double shrinkageDistance=0.0;
+  ///RefreshBox,缩回去的距离，包括触发了上下拉刷新后缩回到刷新栏高度,和刷新完毕后box高度回缩到0的距离（恢复正常ListView）
+  double _shrinkageDistance=0.0;
+  ///刷新栏RefreshBox的高度
   final double _refreshHeight=50.0;
+  ///头部刷新栏触发下拉刷新的高度
+  final double _triggerRefreshTopHeight=80.0;
   RefreshBoxDirectionStatus states=RefreshBoxDirectionStatus.IDLE;
   AnimationStates animationStates=AnimationStates.RefreshBoxIdle;
 
   AnimationController animationControllerWait;
+  ///记录RefreshBox在动画过程中是触发刷新（加载）的回缩还是刷新（加载）数据完后触发的刷新，
+  RefreshBoxAnimationModel _boxAnimationStatus;
 
   bool isReset=false;
   bool isPulling=false;
 
-
-
   @override
   void initState() {
     super.initState();
+    widget.triggerPullController.pullToPushState=this;
     //这个是刷新时控件旋转的动画，用来使刷新的Icon动起来
     animationControllerWait=new AnimationController(duration: const Duration(milliseconds: 1000*100), vsync: this);
 
@@ -116,16 +125,24 @@ class PullAndPushState extends State<PullAndPush> with TickerProviderStateMixin{
         //根据动画的值逐渐减小布局的高度，分为4种情况
         // 1.上拉高度超过_refreshHeight    2.上拉高度不够50   3.下拉拉高度超过_refreshHeight  4.下拉拉高度不够50
         setState(() {
-          if(topItemHeight>_refreshHeight){
-            //shrinkageDistance*animation.value是由大变小的，模拟出弹回的效果
-            topItemHeight=_refreshHeight+shrinkageDistance*animation.value;
-          }else if(bottomItemHeight>_refreshHeight){
-            bottomItemHeight=_refreshHeight+shrinkageDistance*animation.value;
-            //高度小于50时↓
-          }else if(topItemHeight<=_refreshHeight&&topItemHeight>0){
-            topItemHeight=shrinkageDistance*animation.value;
-          }else if(bottomItemHeight<=_refreshHeight&&bottomItemHeight>0){
-            bottomItemHeight=shrinkageDistance*animation.value;
+          switch (_boxAnimationStatus){
+            case RefreshBoxAnimationModel.PULL_TRIGGER_BY_BUTTON:
+              topItemHeight=_refreshHeight-_refreshHeight*animation.value;
+              break;
+            case RefreshBoxAnimationModel.PULL_BEFORE_LOAD_DATA:
+              //shrinkageDistance*animation.value是由大变小的，模拟出弹回的效果
+              topItemHeight=_refreshHeight+_shrinkageDistance*animation.value;
+              break;
+            case RefreshBoxAnimationModel.PUSH_BEFORE_LOAD_DATA:
+              bottomItemHeight=_refreshHeight+_shrinkageDistance*animation.value;
+              //高度小于50时↓
+              break;
+            case  RefreshBoxAnimationModel.PULL_RECOVER_TO_NORMAL:
+              topItemHeight=_shrinkageDistance*animation.value;
+              break;
+            case  RefreshBoxAnimationModel.PUSH_RECOVER_TO_NORMAL:
+              bottomItemHeight=_shrinkageDistance*animation.value;
+              break;
           }
         });
       });
@@ -139,43 +156,67 @@ class PullAndPushState extends State<PullAndPush> with TickerProviderStateMixin{
         isReset=false;
         //动画完成后只有2种情况，高度是50和0，如果是高度》=50的，则开始刷新或者加载操作，如果是0则恢复ListView
         setState(() {
-          if(topItemHeight>=_refreshHeight){
-            topItemHeight=_refreshHeight;
-            _refreshStart(RefreshBoxDirectionStatus.PULL);
-          }else if(bottomItemHeight>=_refreshHeight){
-            bottomItemHeight=_refreshHeight;
-            _refreshStart(RefreshBoxDirectionStatus.PUSH);
-            //动画结束，高度回到0，上下拉刷新彻底结束，ListView恢复正常
-          }else if(states==RefreshBoxDirectionStatus.PUSH){
-            topItemHeight=0.0;
-            widget.scrollPhysicsChanged(new RefreshAlwaysScrollPhysics());
-            states=RefreshBoxDirectionStatus.IDLE;
-            _chenckStateAndCallback(AnimationStates.RefreshBoxIdle,RefreshBoxDirectionStatus.IDLE);
-          }else if(states==RefreshBoxDirectionStatus.PULL){
-            bottomItemHeight=0.0;
-            widget.scrollPhysicsChanged(new RefreshAlwaysScrollPhysics());
-            states=RefreshBoxDirectionStatus.IDLE;
-            isPulling=false;
-            _chenckStateAndCallback(AnimationStates.RefreshBoxIdle,RefreshBoxDirectionStatus.IDLE);
+          switch (_boxAnimationStatus){
+            case RefreshBoxAnimationModel.PULL_TRIGGER_BY_BUTTON:
+              topItemHeight=_refreshHeight;
+              _refreshStart(RefreshBoxDirectionStatus.PULL);
+              break;
+            case RefreshBoxAnimationModel.PULL_BEFORE_LOAD_DATA:
+              topItemHeight=_refreshHeight;
+              _refreshStart(RefreshBoxDirectionStatus.PULL);
+              break;
+            case RefreshBoxAnimationModel.PUSH_BEFORE_LOAD_DATA:
+              bottomItemHeight=_refreshHeight;
+              _refreshStart(RefreshBoxDirectionStatus.PUSH);
+              //动画结束，高度回到0，上下拉刷新彻底结束，ListView恢复正常
+              break;
+            case  RefreshBoxAnimationModel.PULL_RECOVER_TO_NORMAL:
+              topItemHeight=0.0;
+              widget.scrollPhysicsChanged(new RefreshAlwaysScrollPhysics());
+              states=RefreshBoxDirectionStatus.IDLE;
+              _chenckStateAndCallback(AnimationStates.RefreshBoxIdle,RefreshBoxDirectionStatus.IDLE);
+              break;
+            case  RefreshBoxAnimationModel.PUSH_RECOVER_TO_NORMAL:
+              bottomItemHeight=0.0;
+              widget.scrollPhysicsChanged(new RefreshAlwaysScrollPhysics());
+              states=RefreshBoxDirectionStatus.IDLE;
+              isPulling=false;
+              _chenckStateAndCallback(AnimationStates.RefreshBoxIdle,RefreshBoxDirectionStatus.IDLE);
+              break;
           }
         });
       }else if(animationStatus==AnimationStatus.forward){
         //动画开始时根据情况计算要弹回去的距离
-        if(topItemHeight>_refreshHeight){
-          shrinkageDistance=topItemHeight-_refreshHeight;
+        if(topItemHeight>_triggerRefreshTopHeight){
+          _shrinkageDistance=topItemHeight-_refreshHeight;
+          _boxAnimationStatus=RefreshBoxAnimationModel.PULL_BEFORE_LOAD_DATA;
         }else if(bottomItemHeight>_refreshHeight){
-          shrinkageDistance=bottomItemHeight-_refreshHeight;
+          _shrinkageDistance=bottomItemHeight-_refreshHeight;
+          _boxAnimationStatus=RefreshBoxAnimationModel.PUSH_BEFORE_LOAD_DATA;
           //这里必须有个动画，不然上拉加载时  ListView不会自动滑下去，导致ListView悬在半空
           widget.listView.controller.animateTo(widget.listView.controller.position.maxScrollExtent, duration: new Duration(milliseconds: 250), curve: Curves.linear);
-        }else if(topItemHeight<=_refreshHeight&&topItemHeight>0.0){
-          shrinkageDistance=topItemHeight;
-          states=RefreshBoxDirectionStatus.PUSH;
-        }else if(bottomItemHeight<=_refreshHeight&&bottomItemHeight>0.0){
-          shrinkageDistance=bottomItemHeight;
+        }else if(topItemHeight<=_triggerRefreshTopHeight&&topItemHeight>0.0){
+          _shrinkageDistance=topItemHeight;
           states=RefreshBoxDirectionStatus.PULL;
+          _boxAnimationStatus=RefreshBoxAnimationModel.PULL_RECOVER_TO_NORMAL;
+        }else if(bottomItemHeight<=_refreshHeight&&bottomItemHeight>0.0){
+          _shrinkageDistance=bottomItemHeight;
+          states=RefreshBoxDirectionStatus.PUSH;
+          _boxAnimationStatus=RefreshBoxAnimationModel.PUSH_RECOVER_TO_NORMAL;
+        }else if(_boxAnimationStatus!=null&&_boxAnimationStatus==RefreshBoxAnimationModel.PULL_TRIGGER_BY_BUTTON){
+          print("动过按键主动触发下拉刷新");
         }
       }
     });
+  }
+
+
+  ///按钮主动触发下拉刷新
+  void triggerPullByButton(){
+    if(states==RefreshBoxDirectionStatus.IDLE){
+      _boxAnimationStatus=RefreshBoxAnimationModel.PULL_TRIGGER_BY_BUTTON;
+      animationController.forward();
+    }
   }
 
   Widget _getFooterBox(){
@@ -283,6 +324,7 @@ class PullAndPushState extends State<PullAndPush> with TickerProviderStateMixin{
 
   void _refreshStart (RefreshBoxDirectionStatus refreshBoxDirectionStatus) async{
     _chenckStateAndCallback(AnimationStates.StartLoadData,refreshBoxDirectionStatus);
+    //只有默认的RefreshBox才用animationControllerWait启动动画，自定义的刷新栏，用户会自己操作动画
     if(refreshBoxDirectionStatus==RefreshBoxDirectionStatus.PULL&&widget.headerRefreshBox==null&&widget.isPullEnable){
       //开始加载等待的动画
       animationControllerWait.forward();
@@ -291,11 +333,9 @@ class PullAndPushState extends State<PullAndPush> with TickerProviderStateMixin{
       animationControllerWait.forward();
     }
 
-
     //这里我们开始加载数据 数据加载完成后，将新数据处理并开始加载完成后的处理
     await widget.loadData(topItemHeight>bottomItemHeight);
     if (!mounted) return;
-
 
     if(animationControllerWait.isAnimating){
       //结束加载等待的动画
@@ -303,19 +343,12 @@ class PullAndPushState extends State<PullAndPush> with TickerProviderStateMixin{
     }
     _chenckStateAndCallback(AnimationStates.LoadDataEnd,refreshBoxDirectionStatus);
 
-
     await Future.delayed(new Duration(seconds: 2));
 
     //开始将加载（刷新）布局缩回去的动画
     animationController.forward();
-
-    if(refreshBoxDirectionStatus==RefreshBoxDirectionStatus.PULL&&widget.headerRefreshBox==null&&widget.isPullEnable){
-      //结束加载等待的动画
-      animationControllerWait.reset();
-    }else if(refreshBoxDirectionStatus==RefreshBoxDirectionStatus.PUSH&&widget.footerRefreshBox==null&&widget.isPushEnable){
-      //结束加载等待的动画
-      animationControllerWait.reset();
-    }
+    //结束加载等待的动画
+    animationControllerWait.reset();
   }
 
 
@@ -467,9 +500,9 @@ class PullAndPushState extends State<PullAndPush> with TickerProviderStateMixin{
           if(topItemHeight>150.0){
             widget.scrollPhysicsChanged(new NeverScrollableScrollPhysics());
             animationController.forward();
-          }else if(topItemHeight>90.0){
+          }else if(topItemHeight>120.0){
             topItemHeight=notification.dragDetails.delta.dy/6+topItemHeight;
-          }else if(topItemHeight>50.0){
+          }else if(topItemHeight>_triggerRefreshTopHeight){
             _chenckStateAndCallback(AnimationStates.DragAndRefreshEnabled,RefreshBoxDirectionStatus.PULL);
             topItemHeight=notification.dragDetails.delta.dy/4+topItemHeight;
           }else {
@@ -696,4 +729,20 @@ class RefreshAlwaysScrollPhysics extends AlwaysScrollableScrollPhysics {
       tolerance: tolerance,
     );
   }
+}
+
+
+class TriggerPullController{
+  PullAndPushState pullAndPushState;
+
+  set pullToPushState(PullAndPushState state){
+    pullAndPushState=state;
+  }
+
+  void triggerPull(){
+    if(pullAndPushState!=null){
+      pullAndPushState.triggerPullByButton();
+    }
+  }
+
 }
