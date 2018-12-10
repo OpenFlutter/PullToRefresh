@@ -85,28 +85,9 @@ class ListState extends State<ListViewWidgets>{
                   return new AnimationWidget();
                 }));
               }else if(index==1){
-                Navigator.of(context).push(new PageRouteBuilder(
-                  pageBuilder: (BuildContext context, Animation<double> animation, Animation<double> secondaryAnimation) {
-                    return new MarqueeWidgetDemo();
-                  },
-                  transitionsBuilder: (BuildContext context, Animation<double> animation, Animation<double> secondaryAnimation, Widget child) {
-                    return AnimatedBuilder (
-                        child: child,
-                        animation: animation,
-                        builder: (BuildContext context, Widget child) {
-                          return new Transform(
-                            alignment: Alignment.center,
-                            transform: Matrix4.rotationZ(animation.value*1.0-1.0)..scale(animation.value*0.5+0.5,animation.value*0.5+0.5,animation.value*0.5+0.5),
-                            child:new Opacity(
-                              child: child,
-                              opacity: animation.value*0.7+0.3,
-                            ),
-                          );
-                        }
-                    );
-                  },
-                ),
-                );
+                Navigator.of(context).push(new MaterialPageRoute(builder: (_) {
+                  return new MarqueeWidgetDemo();
+                }));
               }else if(index==2){
                 Navigator.of(context).push(new PageRouteBuilder(
                   pageBuilder: (BuildContext context, Animation<double> animation, Animation<double> secondaryAnimation) {

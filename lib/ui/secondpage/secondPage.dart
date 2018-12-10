@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutterapp/bin/appinfobin.dart';
 import 'package:flutterapp/ui/secondpage/blendmode.dart';
+import 'package:flutterapp/ui/secondpage/bubbles.dart';
 import 'package:flutterapp/ui/secondpage/dashboard.dart';
 import 'package:flutterapp/ui/secondpage/loginanimdemo.dart';
 import 'package:flutterapp/ui/secondpage/timepicker.dart';
@@ -45,6 +46,7 @@ class ListViewWidgets extends StatefulWidget{
     new AppInfoBin("LoginAnimation", "2018-11-26 10:05", "登陆按钮的动画",false),
     new AppInfoBin("BlendMode", "2018-11-28 10:52", "BlendMode测试",false),
     new AppInfoBin("DashBoard", "2018-11-29 14:34", "汽车仪表盘模拟",false),
+    new AppInfoBin("Bubbles", "2018-12-07 10:38", "泡泡往上冒的动画",false),
   ];
 
   @override
@@ -105,6 +107,7 @@ class ListState extends State<ListViewWidgets>{
                 }));
               }else if(index==4){
                 Navigator.of(context).push(new MaterialPageRoute(builder: (_) {
+                  return new Bubbles();
                 }));
               }
             },

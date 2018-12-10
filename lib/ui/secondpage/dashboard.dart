@@ -46,14 +46,16 @@ class DashBoardState extends State<DashBoard>{
           onPanEnd: (DragEndDetails dragEndDetails){
             handleEndEvent();
           },
-          child:new CustomPaint(
-            size: dashBoardSize,
-            painter: new DashBoardIndicatorPainter(pressures,tableSpace),
-            child: new CustomPaint(
-              size: dashBoardSize,
-              painter: new DashBoardTablePainter(tableSpace),
-            ),
-          )
+          child:new Stack(
+            alignment: Alignment.center,
+            children: <Widget>[
+              new DashBoardTable(dashBoardSize,tableSpace),
+              new CustomPaint(
+                size: dashBoardSize,
+                painter: new DashBoardIndicatorPainter(pressures,tableSpace),
+              )
+            ],
+          ),
         ),
       ),
     );
@@ -65,7 +67,6 @@ class DashBoardState extends State<DashBoard>{
         setState(() {
           pressures++;
         });
-
       }
       //print("pressures is $pressures");
       await Future.delayed(new Duration(milliseconds: 30));
@@ -270,5 +271,21 @@ class DashBoardTablePainter extends CustomPainter{
   bool shouldRepaint(CustomPainter oldDelegate) {
     return false;
   }
+}
 
+
+class DashBoardTable extends StatelessWidget{
+
+  final Size dashBoardSize;
+  final double tableSpace;
+
+  DashBoardTable(this.dashBoardSize,this.tableSpace);
+
+  @override
+  Widget build(BuildContext context) {
+    return new CustomPaint(
+      size: dashBoardSize,
+      painter: new DashBoardTablePainter(tableSpace),
+    );
+  }
 }

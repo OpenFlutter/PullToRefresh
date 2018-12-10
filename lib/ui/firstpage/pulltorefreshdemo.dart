@@ -45,9 +45,10 @@ class PullAndPushTestState extends State<PullAndPushTest> with TickerProviderSta
     //这个是刷新时控件旋转的动画，用来使刷新的Icon动起来
     customBoxWaitAnimation=new AnimationController(duration: const Duration(milliseconds: 1000*100), vsync: this);
     //第一次layout后会被调用
-    //WidgetsBinding.instance.addPostFrameCallback((context){
-    //  triggerPullController.triggerPull();
-    //});
+    WidgetsBinding.instance.addPostFrameCallback((context){
+      print("addPostFrameCallback is  invoke");
+      triggerPullController.triggerPull();
+    });
   }
 
 

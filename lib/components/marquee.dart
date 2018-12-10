@@ -40,6 +40,12 @@ class MarqueeWidgetState extends State<MarqueeWidget> with SingleTickerProviderS
   void initState() {
     super.initState();
     scroController=new ScrollController();
+    WidgetsBinding.instance.addPostFrameCallback((callback){
+      startTimer();
+    });
+  }
+
+  void startTimer(){
     timer=Timer.periodic(new Duration(milliseconds: 100), (timer){
       double maxScrollExtent=scroController.position.maxScrollExtent;
       double pixels=scroController.position.pixels;
