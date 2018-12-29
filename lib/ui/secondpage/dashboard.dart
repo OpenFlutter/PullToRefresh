@@ -213,10 +213,13 @@ class DashBoardTablePainter extends CustomPainter{
       canvas.rotate(tableSpace);
       if(i%10==0){
         int a=(i/10).ceil();
+        changePaintColors(paintMain,i);
         drawLongLine(canvas,paintMain,halfHeight,speedTexts[a]);
       }else if(i%5==0){
+        changePaintColors(paintMain,i);
         drawMiddleLine(canvas,paintMain,halfHeight);
       }else{
+        changePaintColors(paintOther,i);
         drawSmallLine(canvas,paintOther,halfHeight);
       }
     }
@@ -228,10 +231,13 @@ class DashBoardTablePainter extends CustomPainter{
       canvas.rotate(-tableSpace);
       if(i%10==0){
         int a=(i/10).ceil();
+        changePaintColors(paintMain,i);
         drawLongLine(canvas,paintMain,halfHeight,speedTexts[a]);
       }else if(i%5==0){
+        changePaintColors(paintMain,i);
         drawMiddleLine(canvas,paintMain,halfHeight);
       }else{
+        changePaintColors(paintOther,i);
         drawSmallLine(canvas,paintOther,halfHeight);
       }
     }
@@ -241,6 +247,15 @@ class DashBoardTablePainter extends CustomPainter{
   }
 
 
+  void changePaintColors(Paint paint,int value){
+    if(value<=20){
+      paint.color=Colors.green;
+    }else if(value<80){
+      paint.color=Colors.blue;
+    }else{
+      paint.color=Colors.red;
+    }
+  }
 
   ///画仪表盘上的长线
   void drawLongLine(Canvas canvas,Paint paintMain,double halfHeight,String text){
@@ -248,7 +263,7 @@ class DashBoardTablePainter extends CustomPainter{
 
     TextPainter textPainter = new TextPainter();
     textPainter.textDirection = TextDirection.ltr;
-    textPainter.text = new TextSpan(text: text, style: new TextStyle(color:Colors.blue,fontSize: 15.5,));
+    textPainter.text = new TextSpan(text: text, style: new TextStyle(color:paintMain.color,fontSize: 15.5,));
     textPainter.layout();
     double textStarPositionX = -textPainter.size.width / 2;
     double textStarPositionY = -halfHeight+19;
