@@ -69,7 +69,7 @@ class BezierCurveState extends State<BezierCurve> with SingleTickerProviderState
 
     WidgetsBinding widgetsBinding=WidgetsBinding.instance;
     widgetsBinding.addPostFrameCallback((callback){
-      widgetsBinding.addPersistentFrameCallback((callback){
+      widgetsBinding.addPersistentFrameCallback((callback) {
         setState(() {
           _moveForwardDark= _moveForwardDark - widget.flowSpeed- _random.nextDouble()-1;
           if(_moveForwardDark<= - widget.waveDistance*4){
@@ -239,7 +239,6 @@ class BezierCurvePainter extends CustomPainter{
     double halfSizeWidth = size.width/2;
     double radius=min(size.width, size.height)/2-circleStrokeWidth/2;
 
-
     Path path=Path();
     path.moveTo(0, waterHeight);
     for(int i=0;i<pointDark.length-2;i=i+3){
@@ -262,40 +261,24 @@ class BezierCurvePainter extends CustomPainter{
 
 
     canvas.saveLayer(new Rect.fromLTRB(0.0, 0.0, size.width, size.height), layerPaint);
-
-    canvas.saveLayer(new Rect.fromLTRB(0.0, 0.0, size.width, size.height), layerPaint);
     paint.style=PaintingStyle.fill;
     canvas.save();
     canvas.translate(moveForwardLight, 0);
+    paint.color = waterColor.withAlpha(0x88);
     canvas.drawPath(path2, paint);
     canvas.restore();
-    layerPaint.blendMode=BlendMode.srcIn ;
-    canvas.saveLayer(new Rect.fromLTRB(0.0, 0.0,  size.width, size.height), layerPaint);
-    paint.color = waterColor.withAlpha(0x88);
-    canvas.drawCircle(new Offset(halfSizeWidth, halfSizeHeight), radius-circleStrokeWidth, paint);
-    paint.color = waterColor.withAlpha(0xff);
-    canvas.restore();
-    canvas.restore();
 
-    layerPaint.blendMode=BlendMode.dstOver ;
-    canvas.saveLayer(new Rect.fromLTRB(0.0, 0.0, size.width, size.height), layerPaint);
-
-    canvas.saveLayer(new Rect.fromLTRB(0.0, 0.0, size.width, size.height), layerPaint);
-    paint.style=PaintingStyle.fill;
     canvas.save();
     canvas.translate(moveForward, 0);
+    paint.color = waterColor.withAlpha(0xff);
     canvas.drawPath(path, paint);
     canvas.restore();
-    layerPaint.blendMode=BlendMode.srcIn ;
+    layerPaint.blendMode=BlendMode.dstIn ;
     canvas.saveLayer(new Rect.fromLTRB(0.0, 0.0,  size.width, size.height), layerPaint);
-    paint.color = waterColor;
+
     canvas.drawCircle(new Offset(halfSizeWidth, halfSizeHeight), radius-circleStrokeWidth, paint);
     canvas.restore();
     canvas.restore();
-
-    canvas.restore();
-    canvas.restore();
-
 
 
     paint.style=PaintingStyle.stroke;
