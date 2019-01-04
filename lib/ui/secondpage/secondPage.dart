@@ -5,6 +5,7 @@ import 'package:flutterapp/ui/secondpage/blendmode.dart';
 import 'package:flutterapp/ui/secondpage/bubbles.dart';
 import 'package:flutterapp/ui/secondpage/dashboard.dart';
 import 'package:flutterapp/ui/secondpage/loginanimdemo.dart';
+import 'package:flutterapp/ui/secondpage/radarchartdemo.dart';
 import 'package:flutterapp/ui/secondpage/timepicker.dart';
 
 class SecondPage extends StatefulWidget{
@@ -49,6 +50,7 @@ class ListViewWidgets extends StatefulWidget{
     new AppInfoBin("DashBoard", "2018-11-29 14:34", "汽车仪表盘模拟",false),
     new AppInfoBin("Bubbles", "2018-12-07 10:38", "泡泡往上冒的动画",false),
     new AppInfoBin("BezierCurve", "2018-12-26 16:00", "水波纹效果",false),
+    new AppInfoBin("RadarChart", "2019-01-02 15:33", "雷达图（蜘蛛网图）",false),
   ];
 
   @override
@@ -114,6 +116,10 @@ class ListState extends State<ListViewWidgets>{
               }else if(index==5){
                 Navigator.of(context).push(new MaterialPageRoute(builder: (_) {
                   return new BezierCurveDemo();
+                }));
+              }else if(index==6){
+                Navigator.of(context).push(new MaterialPageRoute(builder: (_) {
+                  return new RadarChartDemo();
                 }));
               }
             },

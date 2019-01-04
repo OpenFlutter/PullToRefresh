@@ -24,6 +24,7 @@ class ThirdPageState extends State<ThirdPage>{
 
   @override
   void didChangeDependencies() {
+    super.didChangeDependencies();
     Size size=MediaQuery.of(context).size;
     screenWidth=size.width;
     screenHeight=size.height;

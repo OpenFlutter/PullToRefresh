@@ -10,7 +10,7 @@ import 'dart:ui' as ui show Image;
 void main() => runApp(
   new MaterialApp(
   title: 'Startup Name Generator',
-  showPerformanceOverlay: true,
+  showPerformanceOverlay: false,
   theme: new ThemeData(
     primaryColor: Colors.white,
   ),

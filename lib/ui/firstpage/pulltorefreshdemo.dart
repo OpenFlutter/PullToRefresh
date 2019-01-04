@@ -47,7 +47,7 @@ class PullAndPushTestState extends State<PullAndPushTest> with TickerProviderSta
     //第一次layout后会被调用
     WidgetsBinding.instance.addPostFrameCallback((context){
       print("addPostFrameCallback is  invoke");
-      triggerPullController.triggerPull();
+      //triggerPullController.triggerPull();
     });
   }
 
