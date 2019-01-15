@@ -13,8 +13,19 @@ class BezierCurveDemo extends StatefulWidget{
 class BezierCurveDemoState extends State<BezierCurveDemo>{
 
   final TextEditingController _controller = new TextEditingController();
-  double waterHeight=0.5;
+  //默认初始值为0.0
+  double waterHeight=0.0;
   WaterController waterController=WaterController();
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding widgetsBinding=WidgetsBinding.instance;
+    widgetsBinding.addPostFrameCallback((callback){
+      //这里写你想要显示的百分比
+      waterController.changeWaterHeight(0.82);
+    });
+  }
 
 
   @override

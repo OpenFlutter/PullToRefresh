@@ -1,3 +1,5 @@
+import 'dart:ui';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
@@ -19,17 +21,20 @@ class DashBoardState extends State<DashBoard>{
   final int tableCount=160;
   Size dashBoardSize;
   double tableSpace;
+  Picture _pictureBackGround;
+  Picture _pictureIndicator;
 
   @override
   void initState() {
     super.initState();
     dashBoardSize=new Size(300.0,300.0);
     tableSpace=wholeCirclesRadian/tableCount;
+    _pictureBackGround=DashBoardTablePainter(tableSpace,dashBoardSize).getBackGround();
+    _pictureIndicator=IndicatorPainter(dashBoardSize).drawIndicator();
   }
 
   @override
   Widget build(BuildContext context) {
-    print("time is ${DateTime .now().millisecondsSinceEpoch}");
     return new Scaffold(
       appBar: new AppBar(
         title: new Text("汽车仪表盘"),
@@ -46,15 +51,9 @@ class DashBoardState extends State<DashBoard>{
           onPanEnd: (DragEndDetails dragEndDetails){
             handleEndEvent();
           },
-          child:new Stack(
-            alignment: Alignment.center,
-            children: <Widget>[
-              new DashBoardTable(dashBoardSize,tableSpace),
-              new CustomPaint(
-                size: dashBoardSize,
-                painter: new DashBoardIndicatorPainter(pressures,tableSpace),
-              )
-            ],
+          child:new CustomPaint(
+            size: dashBoardSize,
+            painter: new DashBoardIndicatorPainter(pressures,tableSpace,_pictureBackGround,_pictureIndicator),
           ),
         ),
       ),
@@ -68,7 +67,6 @@ class DashBoardState extends State<DashBoard>{
           pressures++;
         });
       }
-      //print("pressures is $pressures");
       await Future.delayed(new Duration(milliseconds: 30));
     }
   }
@@ -86,7 +84,6 @@ class DashBoardState extends State<DashBoard>{
         pressures--;
       });
 
-      //print("pressures is $pressures");
       if(pressures<=0){
         break;
       }
@@ -100,10 +97,14 @@ class DashBoardIndicatorPainter extends CustomPainter{
 
   final int speeds;
   double tableSpace;
-  DashBoardIndicatorPainter(this.speeds,this.tableSpace);
+  final Picture pictureBackGround;
+  final Picture pictureIndicator;
+
+  DashBoardIndicatorPainter(this.speeds,this.tableSpace,this.pictureBackGround,this.pictureIndicator);
 
   @override
   void paint(Canvas canvas, Size size) {
+    canvas.drawPicture(pictureBackGround);
     drawIndicator( canvas,  size);
     String text;
     if(speeds<100){
@@ -144,6 +145,33 @@ class DashBoardIndicatorPainter extends CustomPainter{
   void drawIndicator(Canvas canvas, Size size){
     double halfHeight=size.height/2;
     double halfWidth=size.width/2;
+    
+    canvas.save();
+    canvas.translate(halfWidth, halfHeight);
+    canvas.rotate((-60+speeds)*tableSpace);
+    canvas.translate(-halfWidth, -halfHeight);
+    
+    canvas.drawPicture(pictureIndicator);
+
+    canvas.restore();
+  }
+}
+
+
+class IndicatorPainter {
+
+  final PictureRecorder _recorder = PictureRecorder();
+  final Size size;
+  
+  IndicatorPainter(this.size);
+
+  ///画速度指针
+  Picture drawIndicator(){
+    Canvas canvas=Canvas(_recorder);
+    canvas.clipRect(new Rect.fromLTWH(0.0, 0.0, size.width, size.height));
+    
+    double halfHeight=size.height/2;
+    double halfWidth=size.width/2;
     Path path=new Path();
     path.moveTo(-2.5, 20);
     path.lineTo(2.5, 20);
@@ -155,41 +183,43 @@ class DashBoardIndicatorPainter extends CustomPainter{
     canvas.save();
 
     canvas.translate(halfWidth, halfHeight);
-    canvas.rotate((-60+speeds)*tableSpace);
 
     Paint paint=new Paint();
     paint.color=Colors.red;
     paint.style=PaintingStyle.fill;
 
     canvas.drawPath(path, paint);
-
-
+    
     paint.color=Colors.black;
     canvas.drawCircle(new Offset(0.0,0.0), 6, paint);
 
     canvas.restore();
+    return _recorder.endRecording();
   }
 }
 
 
 
 
-class DashBoardTablePainter extends CustomPainter{
+class DashBoardTablePainter {
 
   final double tableSpace;
   var speedTexts=["0","20","40","60","80","100","120","140","160","180","200","230","260"];
+  final Size size;
+  final PictureRecorder _recorder = PictureRecorder();
 
-  DashBoardTablePainter(this.tableSpace);
+  DashBoardTablePainter(this.tableSpace,this.size);
 
-  @override
-  void paint(Canvas canvas, Size size) {
+  Picture getBackGround() {
+    Canvas canvas=Canvas(_recorder);
+    canvas.clipRect(new Rect.fromLTWH(0.0, 0.0, size.width, size.height));
     drawTable( canvas,  size);
+    return _recorder.endRecording();
   }
 
 
   ///画仪表盘的表格
   void drawTable(Canvas canvas, Size size){
-    print("************");
     canvas.save();
     double halfWidth=size.width/2;
     double halfHeight=size.height/2;
@@ -281,26 +311,5 @@ class DashBoardTablePainter extends CustomPainter{
     canvas.drawLine(new Offset(0.0, -halfHeight), new Offset(0.0, -halfHeight+7), paintOther);
   }
 
-
-  @override
-  bool shouldRepaint(CustomPainter oldDelegate) {
-    return false;
-  }
 }
 
-
-class DashBoardTable extends StatelessWidget{
-
-  final Size dashBoardSize;
-  final double tableSpace;
-
-  DashBoardTable(this.dashBoardSize,this.tableSpace);
-
-  @override
-  Widget build(BuildContext context) {
-    return new CustomPaint(
-      size: dashBoardSize,
-      painter: new DashBoardTablePainter(tableSpace),
-    );
-  }
-}

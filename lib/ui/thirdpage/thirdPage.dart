@@ -1,11 +1,10 @@
 import 'package:flutter/material.dart';
-import 'dart:ui' as ui show Image;
 
 import 'package:flutter/rendering.dart';
+import 'package:flutterapp/bin/appinfobin.dart';
+import 'package:flutterapp/ui/thirdpage/cutScreen.dart';
 
 class ThirdPage extends StatefulWidget{
-
-  ui.Image imaage;
 
   @override
   State<StatefulWidget> createState() {
@@ -16,71 +15,115 @@ class ThirdPage extends StatefulWidget{
 
 class ThirdPageState extends State<ThirdPage>{
 
-  ui.Image image;
-  ImagePaint paintCanvas;
-  GlobalKey _globalKey=new GlobalKey();
-  double screenWidth,screenHeight;
-
-
-  @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
-    Size size=MediaQuery.of(context).size;
-    screenWidth=size.width;
-    screenHeight=size.height;
-  }
-
   @override
   Widget build(BuildContext context) {
-    return new RepaintBoundary(
-      key: _globalKey,
-      child: new Scaffold(
-        appBar: new AppBar(title: new Text("界面3"),),
-        body:new Column(
-          children: <Widget>[
-            new RaisedButton(
-              child:new Text("点击显示图片"),
-              onPressed: () async {
-                RenderRepaintBoundary boundary = _globalKey.currentContext
-                    .findRenderObject();
-                image = await boundary.toImage(pixelRatio: 1.0);
-                setState(() {
-
-                });
-              }
-            ),
-            new CustomPaint(
-              size: new Size(screenWidth, screenHeight),
-              painter: paintCanvas=new ImagePaint(image,screenWidth,screenHeight),
-            ),
-          ],
-        ),
-      ),
+    return new Scaffold(
+        appBar: new AppBar(
+          title: new Text("CustomWidght",style: new TextStyle(fontSize: 18.0),),
+          actions: <Widget>[
+            new IconButton(
+              icon: new Icon(Icons.search),
+              onPressed: null,
+              iconSize: 29.0,
+              disabledColor: Colors.white,)
+          ]
+          ,),
+        body: new Container(
+          // ignore: conflicting_dart_import
+          child: new ListViewWidgets(),
+        )
     );
   }
 }
 
-class ImagePaint extends CustomPainter{
 
-  ImagePaint(this.image,this.screenWidth,this.screenHeight);
+class ListViewWidgets extends StatefulWidget{
 
-  ui.Image image;
-  final double screenWidth,screenHeight;
-
-  @override
-  void paint(Canvas canvas, Size size) {
-    if(image!=null){
-      canvas.drawImage(image, new Offset(0.0, 0.0), new Paint());
-    }else{
-      Paint paint=new Paint();
-      paint.color=Colors.amberAccent;
-      canvas.drawRect(new Rect.fromLTRB(0.0, 0.0, screenWidth, screenHeight), paint);
-    }
-  }
+  final  constantList =  [
+    new AppInfoBin("CutScreen", "2019-01-11 10:25", "屏幕截图",false),
+  ];
 
   @override
-  bool shouldRepaint(CustomPainter oldDelegate) {
-    return true;
+  State<StatefulWidget> createState() {
+    return new ListState();
   }
 
+}
+
+class ListState extends State<ListViewWidgets>{
+
+  @override
+  Widget build(BuildContext context) {
+    return new ListView.builder(
+      itemCount: widget.constantList.length,
+      itemBuilder: (BuildContext context,int index){
+        return new GestureDetector(
+            onTapDown: (TapDownDetails details){
+              setState(() {
+                widget.constantList[index].isTapDown=true;
+              });
+            },
+            onTapCancel: (){
+              setState(() {
+                widget.constantList[index].isTapDown=false;
+              });
+            },
+            onTapUp:(TapUpDetails details){
+              setState(() {
+                widget.constantList[index].isTapDown=false;
+              });
+              if(index==0){
+                Navigator.of(context).push(new MaterialPageRoute(builder: (_) {
+                  return new CutScreen();
+                }));
+              }
+            },
+            child:new Card(
+              color: widget.constantList[index].isTapDown?Color(0xFFF4CB28):null,
+              child: new Container(
+                padding: new EdgeInsets.all(10.0),
+                child: new ListTile(
+                  subtitle: new Container(
+                    child: new Column(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: <Widget>[
+                        new Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: <Widget>[
+                            new Text(widget.constantList[index].title,style: new TextStyle(fontWeight: FontWeight.bold,fontSize: 16.0,color: Colors.black),)
+                          ],
+                        ),
+                        new Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: <Widget>[
+                            new Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              crossAxisAlignment: CrossAxisAlignment.center,
+                              children: <Widget>[
+                                new Text("时间",style: new TextStyle(fontSize: 13.0)),
+                                new Text(widget.constantList[index].times,style: new TextStyle(fontSize: 13.0)),
+                              ],
+                            )
+                          ],
+                        ),
+                        new Row(
+                          children: <Widget>[
+                            new Expanded(
+                              child:new Container(
+                                padding: const EdgeInsets.fromLTRB(0.0, 8.0, 0.0, 2.0),
+                                child: new Text(widget.constantList[index].content,maxLines: 1,overflow: TextOverflow.ellipsis,),
+                              ),
+                            )
+                          ],
+                        )
+                      ],
+                    ),
+                  ),
+                  trailing: new Icon(Icons.keyboard_arrow_right,color: Colors.grey,),
+                ),
+              ),
+            )
+        );
+      },);
+  }
 }

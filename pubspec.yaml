@@ -42,6 +42,7 @@ flutter:
     - images/refresh.png
     - images/icon_arrow.png
     - images/icon_cry.png
+    - images/tianmao.jpg
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.io/assets-and-images/#resolution-aware.

@@ -18,3 +18,4 @@ class MarqueeWidgetDemo extends StatelessWidget{
     );
   }
 }
+ 

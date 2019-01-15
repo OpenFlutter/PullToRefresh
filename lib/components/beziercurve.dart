@@ -70,20 +70,22 @@ class BezierCurveState extends State<BezierCurve> with SingleTickerProviderState
     WidgetsBinding widgetsBinding=WidgetsBinding.instance;
     widgetsBinding.addPostFrameCallback((callback){
       widgetsBinding.addPersistentFrameCallback((callback) {
-        setState(() {
-          _moveForwardDark= _moveForwardDark - widget.flowSpeed- _random.nextDouble()-1;
-          if(_moveForwardDark<= - widget.waveDistance*4){
-            adjustBezierPoint(pointDark);
-            _moveForwardDark=_moveForwardDark+widget.waveDistance*4;
-          }
+        if(mounted){
+          setState(() {
+            _moveForwardDark= _moveForwardDark - widget.flowSpeed- _random.nextDouble()-1;
+            if(_moveForwardDark<= - widget.waveDistance*4){
+              adjustBezierPoint(pointDark);
+              _moveForwardDark=_moveForwardDark+widget.waveDistance*4;
+            }
 
-          _moveForwardLight = _moveForwardLight- widget.flowSpeed- _random.nextDouble();
-          if(_moveForwardLight <= - widget.waveDistance*4){
-            adjustBezierPoint(pointLight);
-            _moveForwardLight = _moveForwardLight+widget.waveDistance*4;
-          }
-        });
-        widgetsBinding.scheduleFrame();
+            _moveForwardLight = _moveForwardLight- widget.flowSpeed- _random.nextDouble();
+            if(_moveForwardLight <= - widget.waveDistance*4){
+              adjustBezierPoint(pointLight);
+              _moveForwardLight = _moveForwardLight+widget.waveDistance*4;
+            }
+          });
+          widgetsBinding.scheduleFrame();
+        }
       });
     });
   }
@@ -183,13 +185,13 @@ class BezierCurveState extends State<BezierCurve> with SingleTickerProviderState
     animation = new Tween(begin: old, end: newPercentage).animate(animationController);
 
     animation.addListener(_voidCallback=() {
-      setState(() {
-        double value = animation.value;
-        _percentage=value;
-        double newHeight=(1-_percentage) * widget.size.height;
-        adjustPointHeight( newHeight-_waterHeight);
-        _waterHeight=newHeight;
-      });
+        setState(() {
+          double value = animation.value;
+          _percentage=value;
+          double newHeight=(1-_percentage) * widget.size.height;
+          adjustPointHeight( newHeight-_waterHeight);
+          _waterHeight=newHeight;
+        });
     });
 
     animation.addStatusListener((animationStatus){

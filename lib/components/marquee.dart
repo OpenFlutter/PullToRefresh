@@ -35,26 +35,36 @@ class MarqueeWidgetState extends State<MarqueeWidget> with SingleTickerProviderS
   double position=0.0;
   Timer timer;
   List<Widget> widgets=new List();
+  final double _moveDistance=3.0;
+  final int _timerRest=100;
+  final int _animationDuration=90;
+  double _containerWidth;
+  double _widgetWidth;
+  double _widgetHeight;
+
 
   @override
   void initState() {
     super.initState();
     scroController=new ScrollController();
+    _containerWidth=new Text(widget.text,style: widget.textStyle).style.fontSize;
+    _widgetWidth=widget.width!=null&&widget.width>_containerWidth?widget.width:_containerWidth;
+    _widgetHeight=widget.height==null?null: widget.height;
     WidgetsBinding.instance.addPostFrameCallback((callback){
       startTimer();
     });
   }
 
   void startTimer(){
-    timer=Timer.periodic(new Duration(milliseconds: 100), (timer){
+    timer=Timer.periodic(new Duration(milliseconds: _timerRest), (timer){
       double maxScrollExtent=scroController.position.maxScrollExtent;
       double pixels=scroController.position.pixels;
-      if(pixels+3.0>=maxScrollExtent){
+      if(pixels+_moveDistance>=maxScrollExtent){
         position=(maxScrollExtent-screenWidth/4+screenWidth)/2-screenWidth+pixels-maxScrollExtent;
         scroController.jumpTo(position);
       }
-      position+=3.0;
-      scroController.animateTo(position,duration: new Duration(milliseconds: 90),curve: Curves.linear);
+      position+=_moveDistance;
+      scroController.animateTo(position,duration: new Duration(milliseconds: _animationDuration),curve: Curves.linear);
     });
   }
 
@@ -92,10 +102,9 @@ class MarqueeWidgetState extends State<MarqueeWidget> with SingleTickerProviderS
 
   @override
   Widget build(BuildContext context) {
-    double containerWidth=new Text(widget.text,style: widget.textStyle).style.fontSize;
     return new Container(
-      width: widget.width!=null&&widget.width>containerWidth?widget.width:containerWidth,
-      height: widget.height==null?null: widget.height,
+      width: _widgetWidth,
+      height: _widgetHeight,
       child: new Center(
         child: new ListView(
           scrollDirection: widget.scrollAxis,
