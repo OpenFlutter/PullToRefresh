@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutterapp/components/beziercurve.dart';
+import 'package:flutterapp/components/waveprogressbar.dart';
 
 class BezierCurveDemo extends StatefulWidget{
   @override
@@ -23,7 +23,7 @@ class BezierCurveDemoState extends State<BezierCurveDemo>{
     WidgetsBinding widgetsBinding=WidgetsBinding.instance;
     widgetsBinding.addPostFrameCallback((callback){
       //这里写你想要显示的百分比
-      waterController.changeWaterHeight(0.82);
+      waterController.changeProgressRate(0.82);
     });
   }
 
@@ -55,7 +55,7 @@ class BezierCurveDemoState extends State<BezierCurveDemo>{
               new RaisedButton(onPressed: (){
                   print("waterHeight is ${_controller.toString()}");
                   FocusScope.of(context).requestFocus(FocusNode());
-                  waterController.changeWaterHeight(double.parse(_controller.text));
+                  waterController.changeProgressRate(double.parse(_controller.text));
                 },
                 child: new Text("确定"),
               ),
@@ -64,12 +64,12 @@ class BezierCurveDemoState extends State<BezierCurveDemo>{
           new Container(
             margin: EdgeInsets.only(top: 80.0),
             child: new Center(
-              child: new BezierCurve(
+              child: new WaveProgressBar(
                 flowSpeed: 2.0,
                 waveDistance:45.0,
                 waterColor: Color(0xFF68BEFC),
                 //strokeCircleColor: Color(0x50e16009),
-                heightController: waterController,
+                progressController: waterController,
                 percentage: waterHeight,
                 size: new Size (300,300),
                 textStyle: new TextStyle(

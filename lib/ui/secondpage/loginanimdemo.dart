@@ -23,15 +23,11 @@ class LoginAnimationDemoState extends State<LoginAnimationDemo>{
   var httpClient = new HttpClient();
   var url = "https://github.com/";
   var _result="";
-  Color buttonColor=Colors.blue;
-  final double textSize=16.0;
-  TextStyle _textStyle;
-  String loginTip="登陆";
+  final LoginErrorMessageController loginErrorMessageController=LoginErrorMessageController();
 
   @override
   void initState() {
     super.initState();
-    _textStyle=new TextStyle(fontSize: textSize, color: Colors.white);
   }
 
 
@@ -44,43 +40,25 @@ class LoginAnimationDemoState extends State<LoginAnimationDemo>{
       ),
       body: new Center(
         child:new Container(
-          child:new LoginAnimation(
-            buttonColor: buttonColor,
-            textStyle:_textStyle,
-            loginTip: loginTip,
+          child:new AnimatedLoginButton(
+            loginErrorMessageController:loginErrorMessageController,
             onTap: () async {
               try {
                 var request = await httpClient.getUrl(Uri.parse(url));
                 var response = await request.close();
                 if (response.statusCode == HttpStatus.ok) {
                   _result = await response.transform(utf8.decoder).join();
-//                  setState(() {
-//                    //拿到数据后，对数据进行梳理
-//                    buttonColor=Colors.blue;
-//                    _textStyle=new TextStyle(fontSize: textSize, color: Colors.white);
-//                    loginTip="登陆成功";
-//                  });
 
-                  setState(() {
-                    buttonColor=Colors.amberAccent;
-                    _textStyle=new TextStyle(fontSize: textSize, color: Colors.red);
-                    loginTip="网络异常";
-                  });
+                  //拿到数据后，对数据进行梳理
+                  loginErrorMessageController.showErrorMessage("网络异常");
+
                 } else {
                   _result = 'ERROR CODE: ${response.statusCode}';
-                  setState(() {
-                    buttonColor=Colors.amberAccent;
-                    _textStyle=new TextStyle(fontSize: textSize, color: Colors.red);
-                    loginTip="网络异常 $_result";
-                  });
+                  loginErrorMessageController.showErrorMessage("网络异常 $_result");
                 }
               } catch (exception) {
                 _result = '网络异常';
-                setState(() {
-                  buttonColor=Colors.amberAccent;
-                  _textStyle=new TextStyle(fontSize: textSize, color: Colors.red);
-                  loginTip="网络异常";
-                });
+                loginErrorMessageController.showErrorMessage("网络异常");
               }
               print(_result);
             },

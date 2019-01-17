@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'dart:math';
+import 'dart:ui';
 
-class BezierCurve extends StatefulWidget{
+class WaveProgressBar extends StatefulWidget{
 
   final Size size;
   ///决定 水平面的高度
@@ -15,10 +16,10 @@ class BezierCurve extends StatefulWidget{
   final Color waterColor;
   final Color strokeCircleColor;
   final double circleStrokeWidth;
-  final WaterController heightController;
+  final WaterController progressController;
 
 
-  BezierCurve({
+  WaveProgressBar({
     @required this.size,
     this.waveHeight : 25.0,
     @required this.percentage,
@@ -28,17 +29,17 @@ class BezierCurve extends StatefulWidget{
     this.waterColor : const Color(0xffe16009),
     this.strokeCircleColor : const Color(0xFFE0E0E0),
     this.circleStrokeWidth : 4.0,
-    @required this.heightController,
+    @required this.progressController,
   });
 
   @override
   State<StatefulWidget> createState() {
-    return new BezierCurveState();
+    return new WaveProgressBarState();
   }
 }
 
 
-class BezierCurveState extends State<BezierCurve> with SingleTickerProviderStateMixin{
+class WaveProgressBarState extends State<WaveProgressBar> with SingleTickerProviderStateMixin{
   double _moveForwardDark=0.0;
   double _moveForwardLight=0.0;
   double _waterHeight;
@@ -46,9 +47,9 @@ class BezierCurveState extends State<BezierCurve> with SingleTickerProviderState
   Animation<double> animation;
   AnimationController animationController;
   VoidCallback _voidCallback;
-  List<List<double>> pointDark=List();
-  List<List<double>> pointLight=List();
   Random _random=new Random();
+  Picture _lightWavePic;
+  Picture _darkWavePic;
 
   @override
   void dispose() {
@@ -62,9 +63,10 @@ class BezierCurveState extends State<BezierCurve> with SingleTickerProviderState
     super.initState();
     _percentage=widget.percentage;
     _waterHeight=(1-_percentage) * widget.size.height;
-    widget.heightController.bezierCurveState=this;
-
-    initData();
+    widget.progressController.bezierCurveState=this;
+    WavePictureGenerator generator=WavePictureGenerator(widget.size,widget.waveDistance,widget.waveHeight,widget.waterColor);
+    _lightWavePic=generator.drawLightWave();
+    _darkWavePic=generator.drawDarkWave();
     animationController = new AnimationController(duration: const Duration(milliseconds: 3000), vsync: this);
 
     WidgetsBinding widgetsBinding=WidgetsBinding.instance;
@@ -74,13 +76,11 @@ class BezierCurveState extends State<BezierCurve> with SingleTickerProviderState
           setState(() {
             _moveForwardDark= _moveForwardDark - widget.flowSpeed- _random.nextDouble()-1;
             if(_moveForwardDark<= - widget.waveDistance*4){
-              adjustBezierPoint(pointDark);
               _moveForwardDark=_moveForwardDark+widget.waveDistance*4;
             }
 
             _moveForwardLight = _moveForwardLight- widget.flowSpeed- _random.nextDouble();
             if(_moveForwardLight <= - widget.waveDistance*4){
-              adjustBezierPoint(pointLight);
               _moveForwardLight = _moveForwardLight+widget.waveDistance*4;
             }
           });
@@ -90,87 +90,22 @@ class BezierCurveState extends State<BezierCurve> with SingleTickerProviderState
     });
   }
 
-  void initData(){
-    int count=(widget.size.width/(widget.waveDistance*4)).ceil()+1;
-    int maxCount=count*4+1;
-    double lastPoint=0.0;
-    double waveHei=_waterHeight+widget.waveHeight;
-    double waveLow=_waterHeight-widget.waveHeight;
-    int m=0;
-    // TODO  待完成
-    double waves;
-    for(int i=0;i<maxCount-2;i=i+2){
-      if(m%2==0){
-        waves=waveHei;
-      }else{
-        waves=waveLow;
-      }
-      createBezierPoint(pointDark,lastPoint,waves);
-      createBezierPoint(pointLight,lastPoint,waves);
 
-      lastPoint=lastPoint+widget.waveDistance*2;
-      m++;
-    }
-  }
-
-
-  void adjustBezierPoint(List<List<double>> list){
-    double waveHei=_waterHeight+widget.waveHeight;
-    double waveLow=_waterHeight-widget.waveHeight;
-    list.removeRange(0, 6);
-    list.forEach((points){
-      points[0]=points[0]-widget.waveDistance*4;
-    });
-    double lastPoint= list.last[0];
-    createBezierPoint(list,lastPoint,waveHei);
-    lastPoint=lastPoint+widget.waveDistance*2;
-    createBezierPoint(list,lastPoint,waveLow);
-  }
-
-
-
-
-  void adjustPointHeight(double heightDifference){
-    pointDark.forEach((points){
-      points[1]=points[1]+heightDifference;
-    });
-    pointLight.forEach((points){
-      points[1]=points[1]+heightDifference;
-    });
-  }
-
-
-
-  void createBezierPoint(List<List<double>> list,double lastPoint,double waves){
-    //波浪瞎几把动效果添加  但是不同波峰高度之间有断层
-//    int a=_random.nextInt(10);
-    int a=0;
-    if(a%2==0){
-      waves=waves-a;
-    }else{
-      waves=waves+a;
-    }
-    list.add(  [lastPoint,                       _waterHeight]) ;
-    list.add(  [lastPoint+widget.waveDistance,   waves]) ;
-    list.add(  [lastPoint+widget.waveDistance*2, _waterHeight]) ;
-  }
 
   @override
   Widget build(BuildContext context) {
     return new CustomPaint(
       size: widget.size,
       painter: new BezierCurvePainter(
-        waterHeight: _waterHeight,
-        waveHeight:widget.waveHeight,
         moveForward:_moveForwardDark,
         textStyle:widget.textStyle ,
         circleStrokeWidth: widget.circleStrokeWidth,
         strokeCircleColor: widget.strokeCircleColor,
-        waterColor: widget.waterColor,
         percentage: _percentage ,
         moveForwardLight: _moveForwardLight,
-        pointDark: pointDark,
-        pointLight: pointLight,
+        lightWavePic: _lightWavePic,
+        darkWavePic: _darkWavePic,
+        waterHeight: _waterHeight,
       ),
     );
   }
@@ -189,7 +124,6 @@ class BezierCurveState extends State<BezierCurve> with SingleTickerProviderState
           double value = animation.value;
           _percentage=value;
           double newHeight=(1-_percentage) * widget.size.height;
-          adjustPointHeight( newHeight-_waterHeight);
           _waterHeight=newHeight;
         });
     });
@@ -205,88 +139,143 @@ class BezierCurveState extends State<BezierCurve> with SingleTickerProviderState
   }
 }
 
+
+class WavePictureGenerator{
+  PictureRecorder _recorder;
+  final Size size;
+  final double _waveDistance;
+  final double _waveHeight;
+  final Color _waterColor;
+  int _maxCount;
+  double waterHeight;
+  double _targetWidth;
+  double _targetHeight;
+
+  WavePictureGenerator(this.size,this._waveDistance,this._waveHeight,this._waterColor){
+    double oneDistance=_waveDistance*4;
+    int count=(size.width/oneDistance).ceil()+1;
+    _targetWidth=count*oneDistance;
+    _maxCount=count*4+1;
+    waterHeight=size.height/2;
+    _targetHeight=size.height+waterHeight;
+  }
+
+  Picture drawDarkWave(){
+    return drawWaves(true);
+  }
+
+  Picture drawLightWave(){
+    return drawWaves(false);
+  }
+
+  Picture drawWaves(bool isDarkWave){
+    _recorder=PictureRecorder();
+    Canvas canvas=Canvas(_recorder);
+    canvas.clipRect(new Rect.fromLTWH(0.0, 0.0, _targetWidth, _targetHeight));
+    Paint paint =Paint();
+    if(isDarkWave){
+      paint.color = _waterColor;
+    }else{
+      paint.color = _waterColor.withAlpha(0x88);
+    }
+    paint.style=PaintingStyle.fill;
+    canvas.drawPath(createBezierPath(isDarkWave), paint);
+    return _recorder.endRecording();
+  }
+
+
+  Path createBezierPath(bool isDarkWave){
+
+    Path path=Path();
+    path.moveTo(0, waterHeight);
+
+    double lastPoint=0.0;
+    int m=0;
+    double waves;
+    for(int i=0;i<_maxCount-2;i=i+2){
+      if(m%2==0){
+        waves=waterHeight+_waveHeight;
+      }else{
+        waves=waterHeight-_waveHeight;
+      }
+      path.cubicTo(lastPoint, waterHeight,   lastPoint+_waveDistance, waves,   lastPoint+_waveDistance*2, waterHeight);
+      lastPoint=lastPoint+_waveDistance*2;
+      m++;
+    }
+    if(isDarkWave){
+      path.lineTo(lastPoint,_targetHeight);
+      path.lineTo(0,_targetHeight);
+    }else{
+      double waveHeightMax=waterHeight+_waveHeight+10.0;
+      path.lineTo(lastPoint, waveHeightMax);
+      path.lineTo(0,waveHeightMax);
+    }
+    path.close();
+    return path;
+  }
+}
+
+
 class BezierCurvePainter extends CustomPainter{
 
-  final double waterHeight;
-  final double waveHeight;
   final double moveForward;
-  final Color waterColor;
   final Color strokeCircleColor;
   final TextStyle textStyle;
   final double circleStrokeWidth;
   final double percentage;
   final double moveForwardLight;
-  final List<List<double>> pointDark;
-  final List<List<double>> pointLight;
+  final Picture darkWavePic;
+  final Picture lightWavePic;
+  final double waterHeight;
+  final Paint _paints =Paint();
 
   BezierCurvePainter({
-    @required this.waterHeight,
-    @required this.waveHeight,
     @required this.moveForward,
-    @required this.waterColor,
     @required this.strokeCircleColor,
     @required this.textStyle,
     @required this.circleStrokeWidth,
     @required this.percentage,
     @required this.moveForwardLight,
-    @required this.pointDark,
-    @required this.pointLight
+    @required this.darkWavePic,
+    @required this.lightWavePic,
+    @required this.waterHeight,
   });
 
   @override
   void paint(Canvas canvas, Size size) {
     Paint layerPaint=new Paint();
-    Paint paint =Paint();
+
     double halfSizeHeight = size.height/2;
     double halfSizeWidth = size.width/2;
     double radius=min(size.width, size.height)/2-circleStrokeWidth/2;
 
-    Path path=Path();
-    path.moveTo(0, waterHeight);
-    for(int i=0;i<pointDark.length-2;i=i+3){
-      path.cubicTo(pointDark[i][0],pointDark[i][1],     pointDark[i+1][0],pointDark[i+1][1],    pointDark[i+2][0], pointDark[i+2][1]);
-    }
-    path.lineTo(pointDark.last[0],size.height);
-    path.lineTo(0,size.height);
-    path.close();
-
-
-    Path path2=Path();
-    path2.moveTo(0, waterHeight);
-    for(int i=0;i<pointLight.length-2;i=i+3){
-      path2.cubicTo(pointLight[i][0],pointLight[i][1],    pointLight[i+1][0],pointLight[i+1][1],    pointLight[i+2][0], pointLight[i+2][1]);
-    }
-    double waveHeightMax=waterHeight+waveHeight+10.0;
-    path2.lineTo(pointLight.last[0], waveHeightMax);
-    path2.lineTo(0,waveHeightMax);
-    path2.close();
-
+    //由于在绘制图片的时候在波浪上面有50%高度的空白部分，所以在这里必须减掉
+    double targetHeight=waterHeight-halfSizeHeight;
 
     canvas.saveLayer(new Rect.fromLTRB(0.0, 0.0, size.width, size.height), layerPaint);
-    paint.style=PaintingStyle.fill;
+    //绘制淡颜色的海浪
     canvas.save();
-    canvas.translate(moveForwardLight, 0);
-    paint.color = waterColor.withAlpha(0x88);
-    canvas.drawPath(path2, paint);
+    canvas.translate(moveForwardLight, targetHeight);
+    canvas.drawPicture(lightWavePic);
+
+    //绘制深颜色的海浪
+    double moveDistance=moveForward-moveForwardLight;
+    canvas.translate(moveDistance, 0.0);
+    canvas.drawPicture(darkWavePic);
     canvas.restore();
 
-    canvas.save();
-    canvas.translate(moveForward, 0);
-    paint.color = waterColor.withAlpha(0xff);
-    canvas.drawPath(path, paint);
-    canvas.restore();
     layerPaint.blendMode=BlendMode.dstIn ;
     canvas.saveLayer(new Rect.fromLTRB(0.0, 0.0,  size.width, size.height), layerPaint);
 
-    canvas.drawCircle(new Offset(halfSizeWidth, halfSizeHeight), radius-circleStrokeWidth, paint);
+    canvas.drawCircle(new Offset(halfSizeWidth, halfSizeHeight), radius-circleStrokeWidth, _paints);
     canvas.restore();
     canvas.restore();
 
 
-    paint.style=PaintingStyle.stroke;
-    paint.color=strokeCircleColor;
-    paint.strokeWidth=circleStrokeWidth;
-    canvas.drawCircle(new Offset(halfSizeWidth, halfSizeHeight), radius, paint);
+    _paints.style=PaintingStyle.stroke;
+    _paints.color=strokeCircleColor;
+    _paints.strokeWidth=circleStrokeWidth;
+    canvas.drawCircle(new Offset(halfSizeWidth, halfSizeHeight), radius, _paints);
 
     TextPainter textPainter = new TextPainter();
     textPainter.textDirection = TextDirection.ltr;
@@ -305,9 +294,9 @@ class BezierCurvePainter extends CustomPainter{
 }
 
 class WaterController {
-  BezierCurveState bezierCurveState;
+  WaveProgressBarState bezierCurveState;
 
-  void  changeWaterHeight(double h){
+  void  changeProgressRate(double h){
     if(bezierCurveState!=null) {
       bezierCurveState.changeWaterHeight(h);
     }
