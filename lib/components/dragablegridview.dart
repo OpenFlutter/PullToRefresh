@@ -4,19 +4,26 @@ import 'package:flutter/material.dart';
 import 'package:flutterapp/bin/dragablegridviewbin.dart';
 
 typedef CreateChild = Widget Function(int position);
+typedef EditChangeListener();
 
+///准备修改的大纲：3.要适配2-3个文字
 class DragAbleGridView <T extends DragAbleGridViewBin> extends StatefulWidget{
 
   final CreateChild child;
   final List<T> itemBins;
   final int crossAxisCount;
-  //为了便于计算 Item之间的空隙都用crossAxisSpacing
+  ///为了便于计算 Item之间的空隙都用crossAxisSpacing
   final double crossAxisSpacing;
   final double mainAxisSpacing;
   //cross-axis to the main-axis
   final double childAspectRatio;
   final EdgeInsets itemPadding;
   final Decoration decoration;
+  final double deleteIconSize;
+  final double deleteIconMarginTopAndRight;
+  final String deleteIconName;
+  final EditSwitchController editSwitchController;
+  final EditChangeListener editChangeListener;
 
 
   DragAbleGridView({
@@ -28,6 +35,11 @@ class DragAbleGridView <T extends DragAbleGridViewBin> extends StatefulWidget{
     this.crossAxisSpacing:0.0,
     this.itemPadding,
     this.decoration,
+    this.deleteIconSize:15,
+    this.deleteIconMarginTopAndRight:0,
+    this.deleteIconName,
+    this.editSwitchController,
+    this.editChangeListener,
   }) :assert(
   child!=null,
   itemBins!=null,
@@ -69,12 +81,15 @@ class  DragAbleGridViewState <T extends DragAbleGridViewBin> extends State<DragA
   double areaCoverageRatio=2/5;
 
   Timer timer;
+  bool isRemoveItem=false;
+  bool isHideDeleteIcon=true;
 
 
   @override
   void initState() {
     super.initState();
 
+    widget.editSwitchController.dragAbleGridViewState=this;
     controller = new AnimationController(duration: const Duration(milliseconds: 300), vsync: this);
     animation = new Tween(begin:0.0,end: 1.0).animate(controller)
       ..addListener(() {
@@ -134,11 +149,17 @@ class  DragAbleGridViewState <T extends DragAbleGridViewBin> extends State<DragA
         controller.reset();
         isRest=false;
 
-        int dragPosition=itemPositions[startPosition];
-        itemPositions.removeAt(startPosition);
-        itemPositions.insert(endPosition, dragPosition);
-        startPosition=endPosition;
-
+        if(isRemoveItem){
+          isRemoveItem=false;
+          itemPositions.removeAt(startPosition);
+          onPanEndEvent(startPosition);
+        }else{
+          int dragPosition=itemPositions[startPosition];
+          itemPositions.removeAt(startPosition);
+          itemPositions.insert(endPosition, dragPosition);
+          //手指未抬起来（可能会继续拖动），这时候end的位置等于Start的位置
+          startPosition=endPosition;
+        }
       }else if(animationStatus==AnimationStatus.forward){
 
       }
@@ -169,6 +190,11 @@ class  DragAbleGridViewState <T extends DragAbleGridViewBin> extends State<DragA
       setState(() {
         widget.itemBins[index].dragAble=true;
         startPosition=index;
+        if(widget.editChangeListener!=null&&isHideDeleteIcon==true){
+          widget.editChangeListener();
+        }
+        isHideDeleteIcon=false;
+
       });
     }
   }
@@ -187,84 +213,152 @@ class  DragAbleGridViewState <T extends DragAbleGridViewBin> extends State<DragA
             itemBuilder: (BuildContext contexts,int index){
               return new GestureDetector(
                 onTapDown: (detail){
-
-                  //获取控件在屏幕中的y坐标
-                  double ss=widget.itemBins[index].containerKey.currentContext.findRenderObject().getTransformTo(null).getTranslation().y;
-                  double aa=widget.itemBins[index].containerKey.currentContext.findRenderObject().getTransformTo(null).getTranslation().x;
-
-                  //获取 不 带边框的Container的宽度
-                  itemWidth=widget.itemBins[index].containerKey.currentContext.findRenderObject().paintBounds.size.width;
-                  itemHeight=widget.itemBins[index].containerKey.currentContext.findRenderObject().paintBounds.size.height;
-
-                  //获取  带边框 的Container的宽度，就是可见的Item视图的宽度
-                  itemWidthChild=widget.itemBins[index].containerKeyChild.currentContext.findRenderObject().paintBounds.size.width;
-                  itemHeightChild=widget.itemBins[index].containerKeyChild.currentContext.findRenderObject().paintBounds.size.height;
-
-                  //获取 不带边框  和它的子View （带边框 的Container）左右两边的空白部分的宽度
-                  theMarginsOfParentWid=(itemWidth-itemWidthChild)/2;
-                  theMarginsOfParentHei=(itemHeight-itemHeightChild)/2;
-
-                  //计算手指点下去后，控件应该偏移多少像素
-                  widget.itemBins[index].dragPointY=detail.globalPosition.dy-ss-itemHeight/2;
-                  widget.itemBins[index].dragPointX=detail.globalPosition.dx-aa-itemWidth/2;
-
-                  //标识长按事件开始
-                  widget.itemBins[index].isLongPress=true;
-                  //将可拖动标识置为false；（dragAble 为 true时 控件可拖动 ，暂时置为false  等达到长按时间才视为需要拖动）
-                  widget.itemBins[index].dragAble=false;
-                  endPosition=index;
-                  _handLongPress(index);
+                  handleOnTapDownEvent(index,detail);
                 },
                 onPanUpdate: (updateDetail){
-                  widget.itemBins[index].isLongPress=false;
-                  if(widget.itemBins[index].dragAble) {
-                    double dragPointY=widget.itemBins[index].dragPointY += updateDetail.delta.dy;
-                    double dragPointX=widget.itemBins[index].dragPointX += updateDetail.delta.dx;
-                    if(timer!=null&&timer.isActive){
-                      timer.cancel();
-                    }
-                    if(controller.isAnimating){
-                      return;
-                    }
-                    timer=new Timer(new Duration(milliseconds: 100), (){
-                      onFingerPause(index,dragPointX,dragPointY,updateDetail);
-                    });
-
-                    setState(() {});
-                  }
+                  handleOnPanUpdateEvent(index,updateDetail);
                 },
                 onPanEnd: (upDetail){
-                  widget.itemBins[index].isLongPress=false;
-                  if(!widget.itemBins[index].dragAble) {
-                    widget.itemBins[index].dragPointY = 0.0;
-                    widget.itemBins[index].dragPointX = 0.0;
-                  }else {
-                    onPanEndEvent(index);
-                  }
+                  handleOnPanEndEvent(index);
                 },
-                child:new Container(
-                  alignment: Alignment.center,
-                  //color: Colors.grey,
-                  key: widget.itemBins[index].containerKey,
-                  child: new OverflowBox(
-                      maxWidth: screenWidth,
-                      maxHeight: screenHeight,
-                      alignment: Alignment.center,
-                      child: new Center(
-                        child: new Container(
-                          key: widget.itemBins[index].containerKeyChild,
-                          transform: new Matrix4.translationValues(widget.itemBins[index].dragPointX, widget.itemBins[index].dragPointY, 0.0),
-                          padding: widget.itemPadding,
-                          decoration: widget.decoration,
-                          child: widget.child(index),
-                        ),
-                      )
+                onTapUp: (tapUpDetails){
+                  widget.itemBins[index].isLongPress=false;
+                },
+                child:new Offstage(
+                  offstage: widget.itemBins[index].offstage,
+                  child: new Container(
+                    alignment: Alignment.center,
+                    //color: Colors.grey,
+                    key: widget.itemBins[index].containerKey,
+                    child: new OverflowBox(
+                        maxWidth: screenWidth,
+                        maxHeight: screenHeight,
+                        alignment: Alignment.center,
+                        child: new Center(
+                          child: new Container(
+                            key: widget.itemBins[index].containerKeyChild,
+                            transform: new Matrix4.translationValues(widget.itemBins[index].dragPointX, widget.itemBins[index].dragPointY, 0.0),
+                            child: new Stack(
+                              alignment: Alignment.topRight,
+                              children: <Widget>[
+                                new Container(
+                                  padding: widget.itemPadding,
+                                  decoration: widget.decoration,
+                                  margin: EdgeInsets.only(top: widget.deleteIconMarginTopAndRight,right: widget.deleteIconMarginTopAndRight),
+                                  child: widget.child(index),
+                                ),
+                                new Offstage(
+                                  offstage: isHideDeleteIcon,
+                                  child: new GestureDetector(
+                                    child: new Builder(builder: (BuildContext context){
+                                      if(widget.deleteIconName!=null){
+                                        return new Image.asset(widget.deleteIconName,width: widget.deleteIconSize,height: widget.deleteIconSize,);
+                                      }else{
+                                        return new Container();
+                                      }
+                                    }),
+                                    onTap: () {
+                                      setState(() {
+                                        widget.itemBins[index].offstage=true;
+                                      });
+                                      startPosition=index;
+                                      endPosition=widget.itemBins.length-1;
+                                      getWidgetsSize(index);
+                                      isRemoveItem=true;
+                                      _future=controller.forward();
+                                    },
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        )
+                    ),
                   ),
                 ),
               );
             })
     );
   }
+
+
+  void handleOnPanEndEvent(int index){
+    widget.itemBins[index].isLongPress=false;
+    if(!widget.itemBins[index].dragAble) {
+      widget.itemBins[index].dragPointY = 0.0;
+      widget.itemBins[index].dragPointX = 0.0;
+    }else {
+      onPanEndEvent(index);
+    }
+  }
+
+
+  void handleOnPanUpdateEvent(int index,DragUpdateDetails updateDetail){
+    widget.itemBins[index].isLongPress=false;
+    if(widget.itemBins[index].dragAble) {
+      double dragPointY=widget.itemBins[index].dragPointY += updateDetail.delta.dy;
+      double dragPointX=widget.itemBins[index].dragPointX += updateDetail.delta.dx;
+      if(timer!=null&&timer.isActive){
+        timer.cancel();
+      }
+      if(controller.isAnimating){
+        return;
+      }
+      timer=new Timer(new Duration(milliseconds: 100), (){
+        onFingerPause(index,dragPointX,dragPointY,updateDetail);
+      });
+
+      setState(() {});
+    }
+  }
+
+
+  void handleOnTapDownEvent(int index,TapDownDetails detail){
+    getWidgetsSize(index);
+
+    if(!isHideDeleteIcon) {
+      //获取控件在屏幕中的y坐标
+      double ss = widget.itemBins[index].containerKey.currentContext
+          .findRenderObject()
+          .getTransformTo(null)
+          .getTranslation()
+          .y;
+      double aa = widget.itemBins[index].containerKey.currentContext
+          .findRenderObject()
+          .getTransformTo(null)
+          .getTranslation()
+          .x;
+
+      //计算手指点下去后，控件应该偏移多少像素
+      widget.itemBins[index].dragPointY =
+          detail.globalPosition.dy - ss - itemHeight / 2;
+      widget.itemBins[index].dragPointX =
+          detail.globalPosition.dx - aa - itemWidth / 2;
+    }
+
+    //标识长按事件开始
+    widget.itemBins[index].isLongPress=true;
+    //将可拖动标识置为false；（dragAble 为 true时 控件可拖动 ，暂时置为false  等达到长按时间才视为需要拖动）
+    widget.itemBins[index].dragAble=false;
+    endPosition=index;
+    _handLongPress(index);
+  }
+
+
+  void getWidgetsSize(int index){
+    //获取 不 带边框的Container的宽度
+    itemWidth=widget.itemBins[index].containerKey.currentContext.findRenderObject().paintBounds.size.width;
+    itemHeight=widget.itemBins[index].containerKey.currentContext.findRenderObject().paintBounds.size.height;
+
+    //获取  带边框 的Container的宽度，就是可见的Item视图的宽度
+    itemWidthChild=widget.itemBins[index].containerKeyChild.currentContext.findRenderObject().paintBounds.size.width;
+    itemHeightChild=widget.itemBins[index].containerKeyChild.currentContext.findRenderObject().paintBounds.size.height;
+
+    //获取 不带边框  和它的子View （带边框 的Container）左右两边的空白部分的宽度
+    theMarginsOfParentWid=(itemWidth-itemWidthChild)/2;
+    theMarginsOfParentHei=(itemHeight-itemHeightChild)/2;
+  }
+
 
   int onDragLessThanWidthX(int index,double dragPointX,bool isYDragable,DragUpdateDetails updateDetail){
     int x=0;
@@ -452,4 +546,19 @@ class  DragAbleGridViewState <T extends DragAbleGridViewBin> extends State<DragA
       _initItemPositions();
     });
   }
+
+  void changeDeleteIconState(){
+    setState(() {
+      isHideDeleteIcon=!isHideDeleteIcon;
+    });
+  }
 }
+
+class EditSwitchController{
+  DragAbleGridViewState dragAbleGridViewState;
+
+  void editStateChanged(){
+    dragAbleGridViewState.changeDeleteIconState();
+  }
+}
+

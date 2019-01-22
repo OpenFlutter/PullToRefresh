@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'dart:math';
+import 'dart:async';
 
 typedef Future OnTap();
 
@@ -363,6 +364,7 @@ class LoginPainter extends CustomPainter{
 
 
 
+  ///画等腰三角形
   Path getPath(double radius,double radian){
     Path path=new Path();
 

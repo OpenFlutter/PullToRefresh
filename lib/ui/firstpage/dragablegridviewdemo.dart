@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutterapp/bin/gridviewitembin.dart';
-//import 'package:flutterapp/components/dragablegridview.dart';
-import 'package:dragablegridview_flutter/dragablegridview_flutter.dart';
+import 'package:flutterapp/components/dragablegridview.dart';
+//import 'package:dragablegridview_flutter/dragablegridview_flutter.dart';
 
 
 class DragAbleGridViewDemo extends StatefulWidget{
@@ -15,10 +15,15 @@ class DragAbleGridViewDemo extends StatefulWidget{
 class DragAbleGridViewDemoState extends State<DragAbleGridViewDemo>{
 
   List<ItemBin> itemBins=new List();
+  String actionTxtEdit="编辑";
+  String actionTxtComplete="完成";
+  String actionTxt;
+  var editSwitchController=EditSwitchController();
 
   @override
   void initState() {
     super.initState();
+    actionTxt=actionTxtEdit;
     itemBins.add(new ItemBin("鲁班"));
     itemBins.add(new ItemBin("虞姬"));
     itemBins.add(new ItemBin("甄姬"));
@@ -41,6 +46,20 @@ class DragAbleGridViewDemoState extends State<DragAbleGridViewDemo>{
     return new Scaffold(
       appBar: new AppBar(
         title: new Text("可拖拽GridView"),
+        actions: <Widget>[
+          new Center(
+            child: new GestureDetector(
+              child: new Container(
+                child: new Text(actionTxt,style: TextStyle(fontSize: 19.0),),
+                margin: EdgeInsets.only(right: 12),
+              ),
+              onTap: (){
+                changeActionState();
+                editSwitchController.editStateChanged();
+              },
+            )
+          )
+        ],
       ),
       body: new DragAbleGridView(
         decoration: new BoxDecoration(
@@ -49,19 +68,36 @@ class DragAbleGridViewDemoState extends State<DragAbleGridViewDemo>{
         ),
         mainAxisSpacing:10.0,
         crossAxisSpacing:10.0,
+        deleteIconName: "images/close.png",
+        deleteIconMarginTopAndRight: 6.0,
         itemPadding: EdgeInsets.fromLTRB(8.0, 5.0, 8.0, 5.0),
         childAspectRatio:1.8,
         crossAxisCount: 4,
         itemBins:itemBins,
+        editSwitchController:editSwitchController,
         child: (int position){
           return new Text(
             itemBins[position].data,
             style: new TextStyle(fontSize: 16.0,color: Colors.blue),);
         },
+        editChangeListener: (){
+          changeActionState();
+        },
       ),
     );
   }
 
+  void changeActionState(){
+    if(actionTxt==actionTxtEdit){
+      setState(() {
+        actionTxt=actionTxtComplete;
+      });
+    }else{
+      setState(() {
+        actionTxt=actionTxtEdit;
+      });
+    }
+  }
 }
 
 

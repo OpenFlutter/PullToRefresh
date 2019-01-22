@@ -9,4 +9,6 @@ class DragAbleGridViewBin{
   GlobalKey containerKeyChild=new GlobalKey();
   bool isLongPress=false;
   bool dragAble=false;
+  ///是否隐藏，默认不隐藏
+  bool offstage=false;
 }
