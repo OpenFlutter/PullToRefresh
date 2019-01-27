@@ -96,50 +96,67 @@ class  DragAbleGridViewState <T extends DragAbleGridViewBin> extends State<DragA
     controller = new AnimationController(duration: const Duration(milliseconds: 300), vsync: this);
     animation = new Tween(begin:0.0,end: 1.0).animate(controller)
       ..addListener(() {
+        T offsetBin;
+        int childWidgetPosition;
+
         if(isRest){
           if(startPosition>endPosition){
             for(int i=endPosition; i<startPosition;i++){
+              childWidgetPosition=itemPositions[i];
+              offsetBin=widget.itemBins[childWidgetPosition];
               //图标向右 下移动
               if((i+1)%widget.crossAxisCount==0){
-                widget.itemBins[itemPositions[i]].lastTimePositionX = -(screenWidth-itemWidth ) * 1+widget.itemBins[itemPositions[i]].lastTimePositionX;
-                widget.itemBins[itemPositions[i]].lastTimePositionY = (itemHeight + widget.mainAxisSpacing) * 1+widget.itemBins[itemPositions[i]].lastTimePositionY ;
+                offsetBin.lastTimePositionX = -(screenWidth-itemWidth ) * 1+offsetBin.lastTimePositionX;
+                offsetBin.lastTimePositionY = (itemHeight + widget.mainAxisSpacing) * 1+offsetBin.lastTimePositionY ;
               }else {
-                widget.itemBins[itemPositions[i]].lastTimePositionX = (itemWidth + widget.crossAxisSpacing) * 1+widget.itemBins[itemPositions[i]].lastTimePositionX ;
+                offsetBin.lastTimePositionX = (itemWidth + widget.crossAxisSpacing) * 1+offsetBin.lastTimePositionX ;
               }
             }
           }else{
             for(int i=startPosition+1;i<=endPosition;i++){
+              childWidgetPosition=itemPositions[i];
+              offsetBin=widget.itemBins[childWidgetPosition];
               //图标向左 上移动
               if(i%widget.crossAxisCount==0){
-                widget.itemBins[itemPositions[i]].lastTimePositionX = (screenWidth-itemWidth ) * 1+widget.itemBins[itemPositions[i]].lastTimePositionX;
-                widget.itemBins[itemPositions[i]].lastTimePositionY = -(itemHeight + widget.mainAxisSpacing) * 1+widget.itemBins[itemPositions[i]].lastTimePositionY;
+                offsetBin.lastTimePositionX = (screenWidth-itemWidth ) * 1+offsetBin.lastTimePositionX;
+                offsetBin.lastTimePositionY = -(itemHeight + widget.mainAxisSpacing) * 1+offsetBin.lastTimePositionY;
               }else{
-                widget.itemBins[itemPositions[i]].lastTimePositionX = -(itemWidth + widget.crossAxisSpacing) * 1+widget.itemBins[itemPositions[i]].lastTimePositionX;
+                offsetBin.lastTimePositionX = -(itemWidth + widget.crossAxisSpacing) * 1+offsetBin.lastTimePositionX;
               }
             }
           }
           return;
         }
-        setState(() {
 
+        //此代码和上面的代码一样，但是不能提成方法调用 ，已经测试调用方法不会生效
+        setState(() {
+          //startPosition大于endPosition表明目标位置在上方，图标需要向后退一格
           if(startPosition>endPosition){
             for(int i=endPosition; i<startPosition;i++){
-              //图标向右 下移动
+              childWidgetPosition=itemPositions[i];
+              offsetBin=widget.itemBins[childWidgetPosition];
+              //图标向左 下移动；如果图标处在最右侧，那需要向下移动一层，移动到下一层的最左侧，（开头的地方）
               if((i+1)%widget.crossAxisCount==0){
-                widget.itemBins[itemPositions[i]].dragPointX = -(screenWidth-itemWidth ) * animation.value+widget.itemBins[itemPositions[i]].lastTimePositionX;
-                widget.itemBins[itemPositions[i]].dragPointY = (itemHeight + widget.mainAxisSpacing) * animation.value+widget.itemBins[itemPositions[i]].lastTimePositionY ;
+                offsetBin.dragPointX = -(screenWidth-itemWidth ) * animation.value+offsetBin.lastTimePositionX;
+                offsetBin.dragPointY = (itemHeight + widget.mainAxisSpacing) * animation.value+offsetBin.lastTimePositionY ;
               }else {
-                widget.itemBins[itemPositions[i]].dragPointX = (itemWidth + widget.crossAxisSpacing) * animation.value+widget.itemBins[itemPositions[i]].lastTimePositionX ;
+                //↑↑↑如果图标不是处在最右侧，只需要向右移动即可
+                offsetBin.dragPointX = (itemWidth + widget.crossAxisSpacing) * animation.value+offsetBin.lastTimePositionX ;
               }
             }
-          }else{
+          }
+          //当目标位置在下方时 ，图标需要向前前进一个
+          else{
             for(int i=startPosition+1;i<=endPosition;i++){
-              //图标向左 上移动
+              childWidgetPosition=itemPositions[i];
+              offsetBin=widget.itemBins[childWidgetPosition];
+              //图标向右 上移动；如果图标处在最左侧，那需要向上移动一层
               if(i%widget.crossAxisCount==0){
-                widget.itemBins[itemPositions[i]].dragPointX = (screenWidth-itemWidth ) * animation.value+widget.itemBins[itemPositions[i]].lastTimePositionX;
-                widget.itemBins[itemPositions[i]].dragPointY = -(itemHeight + widget.mainAxisSpacing) * animation.value+widget.itemBins[itemPositions[i]].lastTimePositionY;
+                offsetBin.dragPointX = (screenWidth-itemWidth ) * animation.value+offsetBin.lastTimePositionX;
+                offsetBin.dragPointY = -(itemHeight + widget.mainAxisSpacing) * animation.value+offsetBin.lastTimePositionY;
               }else{
-                widget.itemBins[itemPositions[i]].dragPointX = -(itemWidth + widget.crossAxisSpacing) * animation.value+widget.itemBins[itemPositions[i]].lastTimePositionX;
+                //↑↑↑如果图标不是处在最左侧，只需要向左移动即可
+                offsetBin.dragPointX = -(itemWidth + widget.crossAxisSpacing) * animation.value+offsetBin.lastTimePositionX;
               }
             }
           }
@@ -167,7 +184,6 @@ class  DragAbleGridViewState <T extends DragAbleGridViewBin> extends State<DragA
 
       }
     });
-
     _initItemPositions();
   }
 
@@ -179,6 +195,45 @@ class  DragAbleGridViewState <T extends DragAbleGridViewBin> extends State<DragA
   }
 
 
+  void animationHandle(double value){
+    T offsetBin;//offset
+    int childWidgetPosition;
+
+    //setState(() {
+      //startPosition大于endPosition表明目标位置在上方，图标需要向后退一格
+      if(startPosition>endPosition){
+        for(int i=endPosition; i<startPosition;i++){
+          childWidgetPosition=itemPositions[i];
+          offsetBin=widget.itemBins[childWidgetPosition];
+          //图标向左 下移动；如果图标处在最右侧，那需要向下移动一层，移动到下一层的最左侧，（开头的地方）
+          if((i+1)%widget.crossAxisCount==0){
+            offsetBin.dragPointX = -(screenWidth-itemWidth ) * value + offsetBin.lastTimePositionX;
+            offsetBin.dragPointY = (itemHeight + widget.mainAxisSpacing) * value + offsetBin.lastTimePositionY ;
+          }else {
+            //↑↑↑如果图标不是处在最右侧，只需要向右移动即可
+            offsetBin.dragPointX = (itemWidth + widget.crossAxisSpacing) * value + offsetBin.lastTimePositionX ;
+          }
+        }
+      }
+      //当目标位置在下方时 ，图标需要向前前进一个
+      else{
+        for(int i=startPosition+1;i<=endPosition;i++){
+          childWidgetPosition=itemPositions[i];
+          offsetBin=widget.itemBins[childWidgetPosition];
+          //图标向右 上移动；如果图标处在最左侧，那需要向上移动一层
+          if(i%widget.crossAxisCount==0){
+            offsetBin.dragPointX = (screenWidth-itemWidth ) * value + offsetBin.lastTimePositionX;
+            offsetBin.dragPointY = -(itemHeight + widget.mainAxisSpacing) * value + offsetBin.lastTimePositionY;
+          }else{
+            //↑↑↑如果图标不是处在最左侧，只需要向左移动即可
+            offsetBin.dragPointX = -(itemWidth + widget.crossAxisSpacing) * value + offsetBin.lastTimePositionX;
+          }
+        }
+      }
+    //});
+  }
+
+
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
@@ -187,6 +242,8 @@ class  DragAbleGridViewState <T extends DragAbleGridViewBin> extends State<DragA
     screenHeight=screenSize.height;
   }
 
+
+  ///自定义长按事件，只有长按800毫秒 才能触发拖动
   void _handLongPress(int index) async{
     await Future.delayed(new Duration(milliseconds: 800));
     if(widget.itemBins[index].isLongPress){
@@ -197,7 +254,6 @@ class  DragAbleGridViewState <T extends DragAbleGridViewBin> extends State<DragA
           widget.editChangeListener();
         }
         isHideDeleteIcon=false;
-
       });
     }
   }
@@ -230,7 +286,7 @@ class  DragAbleGridViewState <T extends DragAbleGridViewBin> extends State<DragA
                   handleOnPanEndEvent(index);
                 },
                 onTapUp: (tapUpDetails){
-                  widget.itemBins[index].isLongPress=false;
+                  handleOnTapUp(index);
                 },
                 child:new Offstage(
                   offstage: widget.itemBins[index].offstage,
@@ -271,7 +327,7 @@ class  DragAbleGridViewState <T extends DragAbleGridViewBin> extends State<DragA
                                       });
                                       startPosition=index;
                                       endPosition=widget.itemBins.length-1;
-                                      getWidgetsSize(index);
+                                      getWidgetsSize(widget.itemBins[index]);
                                       isRemoveItem=true;
                                       _future=controller.forward();
                                     },
@@ -291,21 +347,37 @@ class  DragAbleGridViewState <T extends DragAbleGridViewBin> extends State<DragA
 
 
   void handleOnPanEndEvent(int index){
-    widget.itemBins[index].isLongPress=false;
-    if(!widget.itemBins[index].dragAble) {
-      widget.itemBins[index].dragPointY = 0.0;
-      widget.itemBins[index].dragPointX = 0.0;
+    T pressItemBin = widget.itemBins[index];
+
+    pressItemBin.isLongPress=false;
+    if(!pressItemBin.dragAble) {
+      pressItemBin.dragPointY = 0.0;
+      pressItemBin.dragPointX = 0.0;
     }else {
       onPanEndEvent(index);
     }
   }
 
 
+  void handleOnTapUp(int index){
+    T pressItemBin = widget.itemBins[index];
+
+    pressItemBin.isLongPress=false;
+    if(!isHideDeleteIcon) {
+      //计算手指点下去后，控件应该偏移多少像素
+      pressItemBin.dragPointY = 0.0;
+      pressItemBin.dragPointX = 0.0;
+    }
+  }
+
+
   void handleOnPanUpdateEvent(int index,DragUpdateDetails updateDetail){
-    widget.itemBins[index].isLongPress=false;
-    if(widget.itemBins[index].dragAble) {
-      double dragPointY=widget.itemBins[index].dragPointY += updateDetail.delta.dy;
-      double dragPointX=widget.itemBins[index].dragPointX += updateDetail.delta.dx;
+    T pressItemBin = widget.itemBins[index];
+
+    pressItemBin.isLongPress=false;
+    if(pressItemBin.dragAble) {
+      double dragPointY=pressItemBin.dragPointY += updateDetail.delta.dy;
+      double dragPointX=pressItemBin.dragPointX += updateDetail.delta.dx;
       if(timer!=null&&timer.isActive){
         timer.cancel();
       }
@@ -322,45 +394,37 @@ class  DragAbleGridViewState <T extends DragAbleGridViewBin> extends State<DragA
 
 
   void handleOnTapDownEvent(int index,TapDownDetails detail){
-    getWidgetsSize(index);
+    T pressItemBin = widget.itemBins[index];
+
+    getWidgetsSize(pressItemBin);
 
     if(!isHideDeleteIcon) {
       //获取控件在屏幕中的y坐标
-      double ss = widget.itemBins[index].containerKey.currentContext
-          .findRenderObject()
-          .getTransformTo(null)
-          .getTranslation()
-          .y;
-      double aa = widget.itemBins[index].containerKey.currentContext
-          .findRenderObject()
-          .getTransformTo(null)
-          .getTranslation()
-          .x;
+      double ss = pressItemBin.containerKey.currentContext.findRenderObject().getTransformTo(null).getTranslation().y;
+      double aa = pressItemBin.containerKey.currentContext.findRenderObject().getTransformTo(null).getTranslation().x;
 
       //计算手指点下去后，控件应该偏移多少像素
-      widget.itemBins[index].dragPointY =
-          detail.globalPosition.dy - ss - itemHeight / 2;
-      widget.itemBins[index].dragPointX =
-          detail.globalPosition.dx - aa - itemWidth / 2;
+      pressItemBin.dragPointY = detail.globalPosition.dy - ss - itemHeight / 2;
+      pressItemBin.dragPointX = detail.globalPosition.dx - aa - itemWidth / 2;
     }
 
     //标识长按事件开始
-    widget.itemBins[index].isLongPress=true;
+    pressItemBin.isLongPress=true;
     //将可拖动标识置为false；（dragAble 为 true时 控件可拖动 ，暂时置为false  等达到长按时间才视为需要拖动）
-    widget.itemBins[index].dragAble=false;
+    pressItemBin.dragAble=false;
     endPosition=index;
     _handLongPress(index);
   }
 
 
-  void getWidgetsSize(int index){
+  void getWidgetsSize(T pressItemBin){
     //获取 不 带边框的Container的宽度
-    itemWidth=widget.itemBins[index].containerKey.currentContext.findRenderObject().paintBounds.size.width;
-    itemHeight=widget.itemBins[index].containerKey.currentContext.findRenderObject().paintBounds.size.height;
+    itemWidth=pressItemBin.containerKey.currentContext.findRenderObject().paintBounds.size.width;
+    itemHeight=pressItemBin.containerKey.currentContext.findRenderObject().paintBounds.size.height;
 
     //获取  带边框 的Container的宽度，就是可见的Item视图的宽度
-    itemWidthChild=widget.itemBins[index].containerKeyChild.currentContext.findRenderObject().paintBounds.size.width;
-    itemHeightChild=widget.itemBins[index].containerKeyChild.currentContext.findRenderObject().paintBounds.size.height;
+    itemWidthChild=pressItemBin.containerKeyChild.currentContext.findRenderObject().paintBounds.size.width;
+    itemHeightChild=pressItemBin.containerKeyChild.currentContext.findRenderObject().paintBounds.size.height;
 
     //获取 不带边框  和它的子View （带边框 的Container）左右两边的空白部分的宽度
     blankSpaceHorizontal=(itemWidth-itemWidthChild)/2;
