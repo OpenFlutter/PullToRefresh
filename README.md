@@ -58,7 +58,7 @@ Add it to your dart file:
 Add this to your package's pubspec.yaml file:
 
 	dependencies:
-	  dragablegridview_flutter: ^0.1.2
+	  dragablegridview_flutter: ^0.1.5
 	  
 Add it to your dart file:
 

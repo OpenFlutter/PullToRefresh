@@ -32,6 +32,9 @@ class DragAbleGridView <T extends DragAbleGridViewBin> extends StatefulWidget{
   final EditSwitchController editSwitchController;
   ///长按触发编辑状态，可监听状态来改变编辑按钮（编辑开关 ，通过按钮触发编辑）的状态
   final EditChangeListener editChangeListener;
+  final bool isOpenDragAble;
+  final int animationDuration;
+  final int longPressDuration;
 
 
   DragAbleGridView({
@@ -48,6 +51,9 @@ class DragAbleGridView <T extends DragAbleGridViewBin> extends StatefulWidget{
     this.deleteIconName,
     this.editSwitchController,
     this.editChangeListener,
+    this.isOpenDragAble:false,
+    this.animationDuration:300,
+    this.longPressDuration:800,
   }) :assert(
   child!=null,
   itemBins!=null,
@@ -93,7 +99,7 @@ class  DragAbleGridViewState <T extends DragAbleGridViewBin> extends State<DragA
     super.initState();
 
     widget.editSwitchController.dragAbleGridViewState=this;
-    controller = new AnimationController(duration: const Duration(milliseconds: 300), vsync: this);
+    controller = new AnimationController(duration:  Duration(milliseconds : widget.animationDuration), vsync: this);
     animation = new Tween(begin:0.0,end: 1.0).animate(controller)
       ..addListener(() {
         T offsetBin;
@@ -245,7 +251,7 @@ class  DragAbleGridViewState <T extends DragAbleGridViewBin> extends State<DragA
 
   ///自定义长按事件，只有长按800毫秒 才能触发拖动
   void _handLongPress(int index) async{
-    await Future.delayed(new Duration(milliseconds: 800));
+    await Future.delayed(new Duration(milliseconds: widget.longPressDuration));
     if(widget.itemBins[index].isLongPress){
       setState(() {
         widget.itemBins[index].dragAble=true;
@@ -276,18 +282,18 @@ class  DragAbleGridViewState <T extends DragAbleGridViewBin> extends State<DragA
             ),
             itemBuilder: (BuildContext contexts,int index){
               return new GestureDetector(
-                onTapDown: (detail){
+                onTapDown: widget.isOpenDragAble ? (detail){
                   handleOnTapDownEvent(index,detail);
-                },
-                onPanUpdate: (updateDetail){
+                } : null,
+                onPanUpdate: widget.isOpenDragAble ? (updateDetail){
                   handleOnPanUpdateEvent(index,updateDetail);
-                },
-                onPanEnd: (upDetail){
+                } : null,
+                onPanEnd: widget.isOpenDragAble ? (upDetail){
                   handleOnPanEndEvent(index);
-                },
-                onTapUp: (tapUpDetails){
+                } : null,
+                onTapUp: widget.isOpenDragAble ? (tapUpDetails){
                   handleOnTapUp(index);
-                },
+                } : null,
                 child:new Offstage(
                   offstage: widget.itemBins[index].offstage,
                   child: new Container(

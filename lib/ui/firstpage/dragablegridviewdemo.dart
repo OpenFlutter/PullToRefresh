@@ -19,26 +19,16 @@ class DragAbleGridViewDemoState extends State<DragAbleGridViewDemo>{
   String actionTxtComplete="完成";
   String actionTxt;
   var editSwitchController=EditSwitchController();
+  final List<String> heroes=["鲁班","虞姬","甄姬","黄盖","张飞","关羽","刘备","曹操","赵云","孙策","庄周","廉颇","后裔","妲己","荆轲",];
 
   @override
   void initState() {
     super.initState();
     actionTxt=actionTxtEdit;
-    itemBins.add(new ItemBin("鲁班"));
-    itemBins.add(new ItemBin("虞姬"));
-    itemBins.add(new ItemBin("甄姬"));
-    itemBins.add(new ItemBin("黄盖"));
-    itemBins.add(new ItemBin("张飞"));
-    itemBins.add(new ItemBin("关羽"));
-    itemBins.add(new ItemBin("刘备"));
-    itemBins.add(new ItemBin("曹操"));
-    itemBins.add(new ItemBin("赵云"));
-    itemBins.add(new ItemBin("孙策"));
-    itemBins.add(new ItemBin("庄周"));
-    itemBins.add(new ItemBin("廉颇"));
-    itemBins.add(new ItemBin("后裔"));
-    itemBins.add(new ItemBin("妲己"));
-    itemBins.add(new ItemBin("荆轲"));
+    heroes.forEach((heroName) {
+        itemBins.add(new ItemBin(heroName));
+      }
+    );
   }
 
   @override
@@ -75,6 +65,11 @@ class DragAbleGridViewDemoState extends State<DragAbleGridViewDemo>{
         crossAxisCount: 4,
         itemBins:itemBins,
         editSwitchController:editSwitchController,
+        /******************************new parameter*********************************/
+        isOpenDragAble: true,
+        animationDuration: 300, //milliseconds
+        longPressDuration: 800, //milliseconds
+        /******************************new parameter*********************************/
         child: (int position){
           return new Text(
             itemBins[position].data,
