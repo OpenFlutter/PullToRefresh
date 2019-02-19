@@ -39,7 +39,7 @@ A Marquee widght with ListView,Can scroll vertically or horizontally
 Add this to your package's pubspec.yaml file:
 
 	dependencies:
-	  marquee_flutter: ^0.1.2
+	  marquee_flutter: ^0.1.3
 	  
 Add it to your dart file:
 

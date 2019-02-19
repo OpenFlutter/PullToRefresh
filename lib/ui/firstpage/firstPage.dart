@@ -64,6 +64,7 @@ class ListState extends State<ListViewWidgets>{
   Widget build(BuildContext context) {
     return new ListView.builder(
       itemCount: widget.constantList.length,
+      scrollDirection: Axis.vertical,
       itemBuilder: (BuildContext context,int index){
         return new GestureDetector(
             onTapDown: (TapDownDetails details){
