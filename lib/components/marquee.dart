@@ -28,8 +28,8 @@ class MarqueeWidget extends StatefulWidget{
 class MarqueeWidgetState extends State<MarqueeWidget> with SingleTickerProviderStateMixin{
 
   ScrollController scroController;
-  double screenWidth;
-  double screenHeight;
+  double blankWidth;
+  double blankHeight;
   double position=0.0;
   Timer timer;
   final double _moveDistance=3.0;
@@ -53,14 +53,17 @@ class MarqueeWidgetState extends State<MarqueeWidget> with SingleTickerProviderS
     timer=Timer.periodic(new Duration(milliseconds: _timerRest), (timer){
       double maxScrollExtent=scroController.position.maxScrollExtent;
       double pixels=scroController.position.pixels;
+      //当animateTo的距离大于最大滑动距离时，则要返回第一个child的特定位置，让末尾正好处于最右侧，然后继续滚动，造成跑马灯的假象
       if(pixels+_moveDistance>=maxScrollExtent){
         if(widget.scrollAxis==Axis.horizontal){
-          //TODO 我也看不懂怎么算的
-          position=(maxScrollExtent-screenWidth*widget.ratioOfBlankToScreen+widgetWidth)/2-widgetWidth+pixels-maxScrollExtent;
+          //TODO maxScrollExtent是可滑动的最大距离，不可滑动的距离并不计算在内（即ListView的控件宽度），maxScrollExtent + widgetWidth才是children的真正高度
+          //(maxScrollExtent+widgetWidth-blankWidth)/2 可计算出一个TextView控件的长度，然后再减去widgetWidth。计算出第一个child偏移到最右侧所需要的偏移量
+          //当animateTo滑动到末尾，但是距末尾还有一段距离，jumpTo的时候要将这段距离考虑进去 pixels-maxScrollExtent
+          //原始计算公式 (maxScrollExtent+widgetWidth-blankWidth)/2 -widgetWidth + pixels- maxScrollExtent，下面的计算公式是经过简化的
+          position=(maxScrollExtent-blankWidth-widgetWidth)/2+pixels-maxScrollExtent;
         }else{
-          position=(maxScrollExtent-screenHeight*widget.ratioOfBlankToScreen+widgetHeight)/2-widgetHeight+pixels-maxScrollExtent;
+          position=(maxScrollExtent-blankHeight-widgetHeight)/2+pixels-maxScrollExtent;
         }
-        print(position);
         scroController.jumpTo(position);
       }
       position+=_moveDistance;
@@ -72,8 +75,10 @@ class MarqueeWidgetState extends State<MarqueeWidget> with SingleTickerProviderS
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    screenWidth=MediaQuery.of(context).size.width;
-    screenHeight=MediaQuery.of(context).size.height;
+    double screenWidth=MediaQuery.of(context).size.width;
+    double screenHeight=MediaQuery.of(context).size.height;
+    blankWidth=screenWidth*widget.ratioOfBlankToScreen;
+    blankHeight=screenHeight*widget.ratioOfBlankToScreen;
   }
 
   Widget getBothEndsChild(){
@@ -90,9 +95,9 @@ class MarqueeWidgetState extends State<MarqueeWidget> with SingleTickerProviderS
 
   Widget getCenterChild(){
     if(widget.scrollAxis ==Axis.horizontal){
-      return new Container(width: screenWidth*widget.ratioOfBlankToScreen);
+      return new Container(width: blankWidth);
     }else{
-      return new Container(height: screenHeight*widget.ratioOfBlankToScreen);
+      return new Container(height: blankHeight);
     }
   }
 
