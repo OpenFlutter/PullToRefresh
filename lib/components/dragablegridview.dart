@@ -18,16 +18,6 @@ class DragAbleGridView <T extends DragAbleGridViewBin> extends StatefulWidget{
   final double mainAxisSpacing;
   //cross-axis to the main-axis
   final double childAspectRatio;
-  ///child的pading
-  final EdgeInsets itemPadding;
-  ///GridView的child的装饰 如边框
-  final Decoration decoration;
-  ///删除图标的大小
-  final double deleteIconSize;
-  ///删除图标margin top  和 margin right 的值，因为不设置的话，图标位置感觉不太对
-  final double deleteIconMarginTopAndRight;
-  ///删除图标的name 例如 images/close.png
-  final String deleteIconName;
   ///编辑开关控制器，可通过点击按钮触发编辑
   final EditSwitchController editSwitchController;
   ///长按触发编辑状态，可监听状态来改变编辑按钮（编辑开关 ，通过按钮触发编辑）的状态
@@ -35,6 +25,8 @@ class DragAbleGridView <T extends DragAbleGridViewBin> extends StatefulWidget{
   final bool isOpenDragAble;
   final int animationDuration;
   final int longPressDuration;
+  ///删除按钮
+  final Image deleteIcon;
 
 
   DragAbleGridView({
@@ -44,16 +36,12 @@ class DragAbleGridView <T extends DragAbleGridViewBin> extends StatefulWidget{
     this.childAspectRatio:1.0,
     this.mainAxisSpacing:0.0,
     this.crossAxisSpacing:0.0,
-    this.itemPadding,
-    this.decoration,
-    this.deleteIconSize:15,
-    this.deleteIconMarginTopAndRight:0,
-    this.deleteIconName,
     this.editSwitchController,
     this.editChangeListener,
     this.isOpenDragAble:false,
     this.animationDuration:300,
     this.longPressDuration:800,
+    this.deleteIcon,
   }) :assert(
   child!=null,
   itemBins!=null,
@@ -311,18 +299,13 @@ class  DragAbleGridViewState <T extends DragAbleGridViewBin> extends State<DragA
                             child: new Stack(
                               alignment: Alignment.topRight,
                               children: <Widget>[
-                                new Container(
-                                  padding: widget.itemPadding,
-                                  decoration: widget.decoration,
-                                  margin: EdgeInsets.only(top: widget.deleteIconMarginTopAndRight,right: widget.deleteIconMarginTopAndRight),
-                                  child: widget.child(index),
-                                ),
+                                widget.child(index),
                                 new Offstage(
                                   offstage: isHideDeleteIcon,
                                   child: new GestureDetector(
                                     child: new Builder(builder: (BuildContext context){
-                                      if(widget.deleteIconName!=null){
-                                        return new Image.asset(widget.deleteIconName,width: widget.deleteIconSize,height: widget.deleteIconSize,);
+                                      if(widget.deleteIcon!=null){
+                                        return widget.deleteIcon;
                                       }else{
                                         return new Container();
                                       }
