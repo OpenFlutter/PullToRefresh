@@ -52,15 +52,8 @@ class DragAbleGridViewDemoState extends State<DragAbleGridViewDemo>{
         ],
       ),
       body: new DragAbleGridView(
-        decoration: new BoxDecoration(
-          borderRadius: BorderRadius.all(new Radius.circular(3.0)),
-          border: new Border.all(color: Colors.blue),
-        ),
         mainAxisSpacing:10.0,
         crossAxisSpacing:10.0,
-        deleteIconName: "images/close.png",
-        deleteIconMarginTopAndRight: 6.0,
-        itemPadding: EdgeInsets.fromLTRB(8.0, 5.0, 8.0, 5.0),
         childAspectRatio:1.8,
         crossAxisCount: 4,
         itemBins:itemBins,
@@ -70,10 +63,21 @@ class DragAbleGridViewDemoState extends State<DragAbleGridViewDemo>{
         animationDuration: 300, //milliseconds
         longPressDuration: 800, //milliseconds
         /******************************new parameter*********************************/
+        deleteIcon: new Image.asset("images/close.png",width: 15.0 ,height: 15.0 ),
         child: (int position){
-          return new Text(
-            itemBins[position].data,
-            style: new TextStyle(fontSize: 16.0,color: Colors.blue),);
+          return new Container(
+            padding: EdgeInsets.fromLTRB(8.0, 5.0, 8.0, 5.0),
+            decoration: new BoxDecoration(
+              borderRadius: BorderRadius.all(new Radius.circular(3.0)),
+              border: new Border.all(color: Colors.blue),
+            ),
+            //因为本布局和删除图标同处于一个Stack内，设置marginTop和marginRight能让图标处于合适的位置
+            //Because this layout and the delete_Icon are in the same Stack, setting marginTop and marginRight will make the icon in the proper position.
+            margin: EdgeInsets.only(top: 6.0,right: 6.0),
+            child: new Text(
+              itemBins[position].data,
+              style: new TextStyle(fontSize: 16.0,color: Colors.blue),),
+          );
         },
         editChangeListener: (){
           changeActionState();
