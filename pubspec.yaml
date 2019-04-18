@@ -15,6 +15,10 @@ dependencies:
   pulltorefresh_flutter: ^0.1.7
   marquee_flutter: ^0.0.2
   dragablegridview_flutter: ^0.0.3
+  camera: ^0.4.3+2
+  path_provider: ^0.5.0
+  video_player: ^0.5.2
+  image_picker: ^0.5.3+1
   #cached_network_image: ^0.4.1
 
 dev_dependencies:

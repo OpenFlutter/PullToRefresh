@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import 'package:flutter/rendering.dart';
 import 'package:flutterapp/bin/appinfobin.dart';
+import 'package:flutterapp/ui/thirdpage/examples/Examples.dart';
 import 'package:flutterapp/ui/thirdpage/cutScreen.dart';
 
 class ThirdPage extends StatefulWidget{
@@ -41,6 +42,7 @@ class ListViewWidgets extends StatefulWidget{
 
   final  constantList =  [
     new AppInfoBin("CutScreen", "2019-01-11 10:25", "屏幕截图",false),
+    new AppInfoBin("Examples", "2019-04-17 11:16", "各种示例",false),
   ];
 
   @override
@@ -75,6 +77,10 @@ class ListState extends State<ListViewWidgets>{
               if(index==0){
                 Navigator.of(context).push(new MaterialPageRoute(builder: (_) {
                   return new CutScreen();
+                }));
+              }else if(index==1){
+                Navigator.of(context).push(new MaterialPageRoute(builder: (_) {
+                  return new Examples();
                 }));
               }
             },
