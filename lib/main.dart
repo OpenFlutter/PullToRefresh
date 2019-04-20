@@ -16,7 +16,7 @@ Future<void> main() async {
   runApp(
     new MaterialApp(
       title: 'Startup Name Generator',
-      showPerformanceOverlay: false,
+      showPerformanceOverlay: true,
       theme: new ThemeData(
         primaryColor: Colors.white,
       ),

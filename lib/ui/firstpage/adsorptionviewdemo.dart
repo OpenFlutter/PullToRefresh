@@ -117,6 +117,7 @@ class AdsorptionViewState extends State<AdsorptionViewDemo>{
         isEqualHeightItem: true,
         adsorptionDatas: adsorptionDatas,
         generalItemChild: (AdsorptionListBin bin) {
+          print("build Item Child ${bin.headerName}");
           return new Container(
             alignment: Alignment.centerLeft,
             margin: EdgeInsets.fromLTRB(15.0, 0.0, 0.0, 0.0),
@@ -127,6 +128,7 @@ class AdsorptionViewState extends State<AdsorptionViewDemo>{
           );
         },
         headChild: (AdsorptionListBin bin) {
+          print("build head Child");
           return new Container(
             color: Colors.grey,
             alignment: Alignment.centerLeft,

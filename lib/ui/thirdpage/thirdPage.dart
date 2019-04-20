@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 
 import 'package:flutter/rendering.dart';
 import 'package:flutterapp/bin/appinfobin.dart';
+import 'package:flutterapp/ui/thirdpage/ShakeView.dart';
+import 'package:flutterapp/ui/thirdpage/TestFile.dart';
 import 'package:flutterapp/ui/thirdpage/examples/Examples.dart';
 import 'package:flutterapp/ui/thirdpage/cutScreen.dart';
 
@@ -43,6 +45,8 @@ class ListViewWidgets extends StatefulWidget{
   final  constantList =  [
     new AppInfoBin("CutScreen", "2019-01-11 10:25", "屏幕截图",false),
     new AppInfoBin("Examples", "2019-04-17 11:16", "各种示例",false),
+    new AppInfoBin("ShakeView", "2019-04-18 10:06", "可以摇晃的View",false),
+    new AppInfoBin("TEST", "2019-04-20 15:17", "测试类",false),
   ];
 
   @override
@@ -81,6 +85,14 @@ class ListState extends State<ListViewWidgets>{
               }else if(index==1){
                 Navigator.of(context).push(new MaterialPageRoute(builder: (_) {
                   return new Examples();
+                }));
+              }else if(index==2){
+                Navigator.of(context).push(new MaterialPageRoute(builder: (_) {
+                  return new ShakeView();
+                }));
+              }else if(index==3){
+                Navigator.of(context).push(new MaterialPageRoute(builder: (_) {
+                  return new TestFile();
                 }));
               }
             },
