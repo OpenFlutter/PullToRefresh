@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutterapp/bin/adsorptionlistbin.dart';
-import 'package:flutterapp/components/adsorptionview.dart';
+import 'package:flutterapp/components/adsorptionview/adsorptionview.dart';
 
 class AdsorptionViewDemo extends StatefulWidget{
   @override
@@ -114,11 +114,12 @@ class AdsorptionViewState extends State<AdsorptionViewDemo>{
         title: new Text("吸附布局"),
       ),
       body:new AdsorptionView(
-        isEqualHeightItem: true,
+        isEqualHeightItem: false,
         adsorptionDatas: adsorptionDatas,
         generalItemChild: (AdsorptionListBin bin) {
           print("build Item Child ${bin.headerName}");
           return new Container(
+            height: 60,
             alignment: Alignment.centerLeft,
             margin: EdgeInsets.fromLTRB(15.0, 0.0, 0.0, 0.0),
             child: new Text(
@@ -130,6 +131,7 @@ class AdsorptionViewState extends State<AdsorptionViewDemo>{
         headChild: (AdsorptionListBin bin) {
           print("build head Child");
           return new Container(
+            height: 50,
             color: Colors.grey,
             alignment: Alignment.centerLeft,
             padding: EdgeInsets.fromLTRB(15.0, 0.0, 0.0, 0.0),

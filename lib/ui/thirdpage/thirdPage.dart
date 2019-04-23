@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 
 import 'package:flutter/rendering.dart';
 import 'package:flutterapp/bin/appinfobin.dart';
-import 'package:flutterapp/ui/thirdpage/ShakeView.dart';
-import 'package:flutterapp/ui/thirdpage/TestFile.dart';
+import 'package:flutterapp/ui/thirdpage/shakeView.dart';
+import 'package:flutterapp/ui/thirdpage/testFile.dart';
 import 'package:flutterapp/ui/thirdpage/examples/Examples.dart';
 import 'package:flutterapp/ui/thirdpage/cutScreen.dart';
 
