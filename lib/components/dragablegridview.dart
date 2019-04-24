@@ -26,7 +26,7 @@ class DragAbleGridView <T extends DragAbleGridViewBin> extends StatefulWidget{
   final int animationDuration;
   final int longPressDuration;
   ///删除按钮
-  final Image deleteIcon;
+  final Widget deleteIcon;
 
 
   DragAbleGridView({
@@ -91,7 +91,6 @@ class  DragAbleGridViewState <T extends DragAbleGridViewBin> extends State<DragA
   @override
   void initState() {
     super.initState();
-
     widget.editSwitchController.dragAbleGridViewState=this;
     controller = new AnimationController(duration:  Duration(milliseconds : widget.animationDuration), vsync: this);
     animation = new Tween(begin:0.0,end: 1.0).animate(controller)
@@ -202,42 +201,12 @@ class  DragAbleGridViewState <T extends DragAbleGridViewBin> extends State<DragA
   }
 
 
-  void animationHandle(double value){
-    T offsetBin;//offset
-    int childWidgetPosition;
-
-    //setState(() {
-      //startPosition大于endPosition表明目标位置在上方，图标需要向后退一格
-      if(startPosition>endPosition){
-        for(int i=endPosition; i<startPosition;i++){
-          childWidgetPosition=itemPositions[i];
-          offsetBin=widget.itemBins[childWidgetPosition];
-          //图标向左 下移动；如果图标处在最右侧，那需要向下移动一层，移动到下一层的最左侧，（开头的地方）
-          if((i+1)%widget.crossAxisCount==0){
-            offsetBin.dragPointX = -(screenWidth-itemWidth ) * value + offsetBin.lastTimePositionX;
-            offsetBin.dragPointY = (itemHeight + widget.mainAxisSpacing) * value + offsetBin.lastTimePositionY ;
-          }else {
-            //↑↑↑如果图标不是处在最右侧，只需要向右移动即可
-            offsetBin.dragPointX = (itemWidth + widget.crossAxisSpacing) * value + offsetBin.lastTimePositionX ;
-          }
-        }
-      }
-      //当目标位置在下方时 ，图标需要向前前进一个
-      else{
-        for(int i=startPosition+1;i<=endPosition;i++){
-          childWidgetPosition=itemPositions[i];
-          offsetBin=widget.itemBins[childWidgetPosition];
-          //图标向右 上移动；如果图标处在最左侧，那需要向上移动一层
-          if(i%widget.crossAxisCount==0){
-            offsetBin.dragPointX = (screenWidth-itemWidth ) * value + offsetBin.lastTimePositionX;
-            offsetBin.dragPointY = -(itemHeight + widget.mainAxisSpacing) * value + offsetBin.lastTimePositionY;
-          }else{
-            //↑↑↑如果图标不是处在最左侧，只需要向左移动即可
-            offsetBin.dragPointX = -(itemWidth + widget.crossAxisSpacing) * value + offsetBin.lastTimePositionX;
-          }
-        }
-      }
-    //});
+  @override
+  void didUpdateWidget(DragAbleGridView<DragAbleGridViewBin> oldWidget) {
+    if(itemPositions.length!= widget.itemBins.length){
+      _initItemPositions();
+    }
+    super.didUpdateWidget(oldWidget);
   }
 
 
@@ -254,14 +223,12 @@ class  DragAbleGridViewState <T extends DragAbleGridViewBin> extends State<DragA
   void _handLongPress(int index) async{
     await Future.delayed(new Duration(milliseconds: widget.longPressDuration));
     if(widget.itemBins[index].isLongPress){
-      setState(() {
-        widget.itemBins[index].dragAble=true;
-        startPosition=index;
-        if(widget.editChangeListener!=null&&isHideDeleteIcon==true){
-          widget.editChangeListener();
-        }
-        isHideDeleteIcon=false;
-      });
+      widget.itemBins[index].dragAble=true;
+      startPosition=index;
+      if(widget.editChangeListener!=null&&isHideDeleteIcon==true){
+        widget.editChangeListener();
+      }
+      isHideDeleteIcon=false;
     }
   }
 

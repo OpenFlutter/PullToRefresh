@@ -114,7 +114,6 @@ class AdsorptionViewState extends State<AdsorptionViewDemo>{
         title: new Text("吸附布局"),
       ),
       body:new AdsorptionView(
-        isEqualHeightItem: false,
         adsorptionDatas: adsorptionDatas,
         generalItemChild: (AdsorptionListBin bin) {
           print("build Item Child ${bin.headerName}");

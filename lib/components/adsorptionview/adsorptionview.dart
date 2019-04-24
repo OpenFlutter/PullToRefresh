@@ -14,7 +14,7 @@ class AdsorptionView<T extends AdsorptionData> extends StatefulWidget{
   final double itemHeight;
   final double itemWidth;
   final double cacheExtent;
-  final bool isEqualHeightItem;
+  //final bool isEqualHeightItem;
 
   AdsorptionView({
     @required this.adsorptionDatas,
@@ -23,7 +23,7 @@ class AdsorptionView<T extends AdsorptionData> extends StatefulWidget{
     this.itemHeight:50.0,
     this.itemWidth:double.infinity,
     this.cacheExtent:30.0,
-    @required this.isEqualHeightItem,
+    //@required this.isEqualHeightItem,
   }): assert(
     adsorptionDatas!=null,
     generalItemChild!=null&&
@@ -32,11 +32,11 @@ class AdsorptionView<T extends AdsorptionData> extends StatefulWidget{
 
   @override
   State<StatefulWidget> createState() {
-    if(isEqualHeightItem) {
+//    if(isEqualHeightItem) {
       return new AdsorptionViewState<T>();
-    }else{
-      return new AdsorptionViewNotEqualHeightState<T>();
-    }
+//    }else{
+//      return new AdsorptionViewNotEqualHeightState<T>();
+//    }
   }
 }
 

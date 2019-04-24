@@ -58,7 +58,7 @@ Add it to your dart file:
 Add this to your package's pubspec.yaml file:
 
 	dependencies:
-	  dragablegridview_flutter: ^0.1.5
+	  dragablegridview_flutter: ^0.1.9
 	  
 Add it to your dart file:
 
@@ -82,7 +82,7 @@ ListView吸顶控件，本控件只适用于ListView的Item高度固定的布局
 Add this to your package's pubspec.yaml file:
 
 	dependencies:
-	  adsorptionview_flutter: ^0.1.2
+	  adsorptionview_flutter: ^0.1.3
 	  
 Add it to your dart file:
 
