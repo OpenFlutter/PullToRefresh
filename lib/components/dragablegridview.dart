@@ -219,18 +219,6 @@ class  DragAbleGridViewState <T extends DragAbleGridViewBin> extends State<DragA
   }
 
 
-  ///自定义长按事件，只有长按800毫秒 才能触发拖动
-  void _handLongPress(int index) async{
-    await Future.delayed(new Duration(milliseconds: widget.longPressDuration));
-    if(widget.itemBins[index].isLongPress){
-      widget.itemBins[index].dragAble=true;
-      startPosition=index;
-      if(widget.editChangeListener!=null&&isHideDeleteIcon==true){
-        widget.editChangeListener();
-      }
-      isHideDeleteIcon=false;
-    }
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -602,14 +590,28 @@ class  DragAbleGridViewState <T extends DragAbleGridViewBin> extends State<DragA
   @override
   void onTapDown(int index) {
     endPosition=index;
-    _handLongPress(index);
+  }
+
+
+  @override
+  double getItemHeight() {
+    return itemHeight;
   }
 
   @override
-  void calculateOffset(DragAbleGridViewBin pressItemBin, TapDownDetails detail,double pointYInScreen,double pointXInScreen) {
-    //计算手指点下去后，控件应该偏移多少像素
-    pressItemBin.dragPointY = detail.globalPosition.dy - pointYInScreen - itemHeight / 2;
-    pressItemBin.dragPointX = detail.globalPosition.dx - pointXInScreen - itemWidth / 2;
+  double getItemWidth() {
+    return itemWidth;
+  }
+
+  @override
+  void onPressSuccess(int index) {
+    setState(() {
+      startPosition=index;
+      if(widget.editChangeListener!=null&&isHideDeleteIcon==true){
+        widget.editChangeListener();
+      }
+      isHideDeleteIcon=false;
+    });
   }
 }
 
@@ -658,8 +660,6 @@ class DragAbleContentView<T extends DragAbleGridViewBin> extends StatefulWidget{
 class DragAbleContentViewState<T extends DragAbleGridViewBin> extends State<DragAbleContentView<T>>{
 
   Timer timer;
-  double itemWidth;
-  double itemHeight;
 
   @override
   Widget build(BuildContext context) {
@@ -718,9 +718,10 @@ class DragAbleContentViewState<T extends DragAbleGridViewBin> extends State<Drag
     T pressItemBin = widget.dragAbleGridViewBin;
     pressItemBin.isLongPress=false;
     if(!widget.isHideDeleteIcon) {
-      //计算手指点下去后，控件应该偏移多少像素
-      pressItemBin.dragPointY = 0.0;
-      pressItemBin.dragPointX = 0.0;
+      setState(() {
+        pressItemBin.dragPointY = 0.0;
+        pressItemBin.dragPointX = 0.0;
+      });
     }
   }
 
@@ -730,8 +731,8 @@ class DragAbleContentViewState<T extends DragAbleGridViewBin> extends State<Drag
 
     pressItemBin.isLongPress=false;
     if(pressItemBin.dragAble) {
-      double dragPointY=pressItemBin.dragPointY += updateDetail.delta.dy;
-      double dragPointX=pressItemBin.dragPointX += updateDetail.delta.dx;
+      double dragPointY  =  pressItemBin.dragPointY   +=   updateDetail.delta.dy;
+      double dragPointX  =  pressItemBin.dragPointX   +=   updateDetail.delta.dx;
       if(timer!=null&&timer.isActive){
         timer.cancel();
       }
@@ -741,6 +742,8 @@ class DragAbleContentViewState<T extends DragAbleGridViewBin> extends State<Drag
       timer=new Timer(new Duration(milliseconds: 100), (){
         widget.dragAbleViewListener.onFingerPause(widget.index,dragPointX,dragPointY,updateDetail);
       });
+      //double dragPointY =  pressItemBin.dragPointY  +=  updateDetail.delta.dy;
+      // 上面的代码有关于item移动的位置刷新代码  所以下面的setState不能删除
       setState(() {});
     }
   }
@@ -755,7 +758,11 @@ class DragAbleContentViewState<T extends DragAbleGridViewBin> extends State<Drag
       double ss = pressItemBin.containerKey.currentContext.findRenderObject().getTransformTo(null).getTranslation().y;
       double aa = pressItemBin.containerKey.currentContext.findRenderObject().getTransformTo(null).getTranslation().x;
 
-      widget.dragAbleViewListener.calculateOffset(pressItemBin,detail,ss,aa);
+      //计算手指点下去后，控件应该偏移多少像素
+      double itemHeight = widget.dragAbleViewListener.getItemHeight();
+      double itemWidth = widget.dragAbleViewListener.getItemWidth();
+      pressItemBin.dragPointY = detail.globalPosition.dy - ss - itemHeight / 2;
+      pressItemBin.dragPointX = detail.globalPosition.dx - aa - itemWidth / 2;
     }
 
     //标识长按事件开始
@@ -763,6 +770,20 @@ class DragAbleContentViewState<T extends DragAbleGridViewBin> extends State<Drag
     //将可拖动标识置为false；（dragAble 为 true时 控件可拖动 ，暂时置为false  等达到长按时间才视为需要拖动）
     pressItemBin.dragAble=false;
     widget.dragAbleViewListener.onTapDown(widget.index);
+    _handLongPress();
+  }
+
+
+
+  ///自定义长按事件，只有长按800毫秒 才能触发拖动
+  void _handLongPress() async{
+    await Future.delayed(new Duration(milliseconds: widget.longPressDuration));
+    if( widget.dragAbleGridViewBin.isLongPress){
+      setState(() {
+        widget.dragAbleGridViewBin.dragAble=true;
+      });//吸附效果  SetState不能删除
+      widget.dragAbleViewListener.onPressSuccess(widget.index);
+    }
   }
 }
 
@@ -771,5 +792,7 @@ abstract class DragAbleViewListener<T extends DragAbleGridViewBin>{
   void onTapDown(int index);
   void onFingerPause(int index ,double dragPointX,double dragPointY,DragUpdateDetails updateDetail);
   void onPanEndEvent(int index);
-  void calculateOffset(T pressItemBin, TapDownDetails detail,double pointYInScreen,double pointXInScreen);
+  double getItemHeight();
+  double getItemWidth();
+  void onPressSuccess(int index);
 }
