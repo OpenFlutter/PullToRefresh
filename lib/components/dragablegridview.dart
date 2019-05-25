@@ -740,7 +740,7 @@ class DragAbleContentViewState<T extends DragAbleGridViewBin> extends State<Drag
       if(widget.controller.isAnimating){
         return;
       }
-      bool isMove = deltaDy>0.0 || deltaDx>0.0;
+      bool isMove = deltaDy.abs()>0.0 || deltaDx.abs()>0.0;
 
       if(isMove){
         if(timer!=null&&timer.isActive) {
