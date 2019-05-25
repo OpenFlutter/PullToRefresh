@@ -728,23 +728,29 @@ class DragAbleContentViewState<T extends DragAbleGridViewBin> extends State<Drag
 
   void handleOnPanUpdateEvent(DragUpdateDetails updateDetail){
     T pressItemBin = widget.dragAbleGridViewBin;
-
     pressItemBin.isLongPress=false;
     if(pressItemBin.dragAble) {
-      double dragPointY  =  pressItemBin.dragPointY   +=   updateDetail.delta.dy;
-      double dragPointX  =  pressItemBin.dragPointX   +=   updateDetail.delta.dx;
-      if(timer!=null&&timer.isActive){
-        timer.cancel();
-      }
+
+      double deltaDy = updateDetail.delta.dy;
+      double deltaDx = updateDetail.delta.dx;
+
+      double dragPointY  =  pressItemBin.dragPointY   +=   deltaDy;
+      double dragPointX  =  pressItemBin.dragPointX   +=   deltaDx;
+
       if(widget.controller.isAnimating){
         return;
       }
-      timer=new Timer(new Duration(milliseconds: 100), (){
-        widget.dragAbleViewListener.onFingerPause(widget.index,dragPointX,dragPointY,updateDetail);
-      });
-      //double dragPointY =  pressItemBin.dragPointY  +=  updateDetail.delta.dy;
-      // 上面的代码有关于item移动的位置刷新代码  所以下面的setState不能删除
-      setState(() {});
+      bool isMove = deltaDy>0.0 || deltaDx>0.0;
+
+      if(isMove){
+        if(timer!=null&&timer.isActive) {
+          timer.cancel();
+        }
+        setState(() {});
+        timer=new Timer(new Duration(milliseconds: 100), (){
+          widget.dragAbleViewListener.onFingerPause(widget.index,dragPointX,dragPointY,updateDetail);
+        });
+      }
     }
   }
 
