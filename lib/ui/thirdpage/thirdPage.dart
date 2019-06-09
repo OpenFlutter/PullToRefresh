@@ -6,6 +6,7 @@ import 'package:flutterapp/ui/thirdpage/shakeView.dart';
 import 'package:flutterapp/ui/thirdpage/testFile.dart';
 import 'package:flutterapp/ui/thirdpage/examples/Examples.dart';
 import 'package:flutterapp/ui/thirdpage/cutScreen.dart';
+import 'package:flutterapp/ui/thirdpage/home_page.dart';
 
 class ThirdPage extends StatefulWidget{
 
@@ -47,6 +48,7 @@ class ListViewWidgets extends StatefulWidget{
     new AppInfoBin("Examples", "2019-04-17 11:16", "各种示例",false),
     new AppInfoBin("ShakeView", "2019-04-18 10:06", "可以摇晃的View",false),
     new AppInfoBin("TEST", "2019-04-20 15:17", "测试类",false),
+    new AppInfoBin("Gallery", "2019-05-27 11:03", "画廊",false),
   ];
 
   @override
@@ -93,6 +95,10 @@ class ListState extends State<ListViewWidgets>{
               }else if(index==3){
                 Navigator.of(context).push(new MaterialPageRoute(builder: (_) {
                   return new TestFile();
+                }));
+              }else if(index==4){
+                Navigator.of(context).push(new MaterialPageRoute(builder: (_) {
+                  return new HomePage();
                 }));
               }
             },

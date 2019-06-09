@@ -5,6 +5,7 @@ import 'package:flutterapp/bin/dragablegridviewbin.dart';
 
 typedef CreateChild = Widget Function(int position);
 typedef EditChangeListener();
+typedef DeleteIconClickListener =void Function(int index);
 
 ///准备修改的大纲：3.要适配2-3个文字
 class DragAbleGridView <T extends DragAbleGridViewBin> extends StatefulWidget{
@@ -27,6 +28,7 @@ class DragAbleGridView <T extends DragAbleGridViewBin> extends StatefulWidget{
   final int longPressDuration;
   ///删除按钮
   final Widget deleteIcon;
+  final DeleteIconClickListener deleteIconClickListener;
 
 
   DragAbleGridView({
@@ -42,6 +44,7 @@ class DragAbleGridView <T extends DragAbleGridViewBin> extends StatefulWidget{
     this.animationDuration:300,
     this.longPressDuration:800,
     this.deleteIcon,
+    this.deleteIconClickListener,
   }) :assert(
   child!=null,
   itemBins!=null,
@@ -223,56 +226,51 @@ class  DragAbleGridViewState <T extends DragAbleGridViewBin> extends State<DragA
   @override
   Widget build(BuildContext context) {
     return new GridView.builder(
-      physics: physics,
-      scrollDirection: Axis.vertical,
-      itemCount: widget.itemBins.length,
-      gridDelegate: new SliverGridDelegateWithFixedCrossAxisCount(
-          crossAxisCount: widget.crossAxisCount,
-          childAspectRatio: widget.childAspectRatio,
-          crossAxisSpacing: widget.crossAxisSpacing,
-          mainAxisSpacing: widget.mainAxisSpacing
-      ),
-      itemBuilder: (BuildContext contexts,int index){
-        return DragAbleContentView(
-          isOpenDragAble: widget.isOpenDragAble,
-          screenHeight: screenHeight,
-          screenWidth: screenWidth,
-          isHideDeleteIcon: isHideDeleteIcon,
-          controller: controller,
-          longPressDuration: widget.longPressDuration,
-          index: index,
-          dragAbleGridViewBin: widget.itemBins[index],
-          dragAbleViewListener: this,
-          child: new Stack(
-            alignment: Alignment.topRight,
-            children: <Widget>[
-              widget.child(index),
-              new Offstage(
-                offstage: isHideDeleteIcon,
-                child: new GestureDetector(
-                  child: new Builder(builder: (BuildContext context){
-                    if(widget.deleteIcon!=null){
-                      return widget.deleteIcon;
-                    }else{
-                      return new Container();
-                    }
-                  }),
-                  onTap: () {
-                    setState(() {
-                      widget.itemBins[index].offstage=true;
-                    });
-                    startPosition=index;
-                    endPosition=widget.itemBins.length-1;
-                    getWidgetsSize(widget.itemBins[index]);
-                    isRemoveItem=true;
-                    _future=controller.forward();
-                  },
+        physics: physics,
+        scrollDirection: Axis.vertical,
+        itemCount: widget.itemBins.length,
+        gridDelegate: new SliverGridDelegateWithFixedCrossAxisCount(
+            crossAxisCount: widget.crossAxisCount,
+            childAspectRatio: widget.childAspectRatio,
+            crossAxisSpacing: widget.crossAxisSpacing,
+            mainAxisSpacing: widget.mainAxisSpacing
+        ),
+        itemBuilder: (BuildContext contexts,int index){
+          return DragAbleContentView(
+            isOpenDragAble: widget.isOpenDragAble,
+            screenHeight: screenHeight,
+            screenWidth: screenWidth,
+            isHideDeleteIcon: isHideDeleteIcon,
+            controller: controller,
+            longPressDuration: widget.longPressDuration,
+            index: index,
+            dragAbleGridViewBin: widget.itemBins[index],
+            dragAbleViewListener: this,
+            child: new Stack(
+              alignment: Alignment.topRight,
+              children: <Widget>[
+                widget.child(index),
+                new Offstage(
+                  offstage: isHideDeleteIcon,
+                  child: new GestureDetector(
+                    child: widget.deleteIcon ?? Container(height: 0, width: 0),
+                    onTap: () {
+                      widget.deleteIconClickListener(index);
+                      setState(() {
+                        widget.itemBins[index].offstage=true;
+                      });
+                      startPosition=index;
+                      endPosition=widget.itemBins.length-1;
+                      getWidgetsSize(widget.itemBins[index]);
+                      isRemoveItem=true;
+                      _future=controller.forward();
+                    },
+                  ),
                 ),
-              ),
-            ],
-          ),
-        );
-      });
+              ],
+            ),
+          );
+        });
 
   }
 
@@ -531,7 +529,7 @@ class  DragAbleGridViewState <T extends DragAbleGridViewBin> extends State<DragA
       return index + (dragPointY.abs()/aSection).floor()*widget.crossAxisCount;
 
     }else{
-     //↑↑↑和哪个Item都没有覆盖，上下边框都在空白的区域。返回Index即可
+      //↑↑↑和哪个Item都没有覆盖，上下边框都在空白的区域。返回Index即可
       return index;
     }
   }
